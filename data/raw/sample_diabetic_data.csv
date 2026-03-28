@@ -1,0 +1,11 @@
+encounter_id,patient_nbr,race,gender,age,admission_type_id,discharge_disposition_id,admission_source_id,time_in_hospital,num_lab_procedures,num_procedures,num_medications,number_outpatient,number_emergency,number_inpatient,number_diagnoses,readmitted
+1,101,Caucasian,Female,[70-80),1,1,7,4,41,1,12,0,0,1,8,<30
+2,101,Caucasian,Female,[70-80),1,1,7,3,38,0,10,1,0,1,8,>30
+3,102,AfricanAmerican,Male,[60-70),3,1,1,5,55,2,18,0,1,2,9,<30
+4,103,Hispanic,Female,[50-60),2,1,1,2,30,0,8,2,0,0,6,NO
+5,104,Caucasian,Male,[80-90),1,3,7,7,65,3,24,0,1,3,11,<30
+6,104,Caucasian,Male,[80-90),1,3,7,6,60,2,22,0,0,2,10,>30
+7,105,Other,Female,[40-50),2,1,1,1,20,0,5,3,0,0,5,NO
+8,106,AfricanAmerican,Female,[70-80),1,1,7,4,45,1,14,0,0,1,8,<30
+9,107,Caucasian,Male,[30-40),3,1,1,2,28,0,7,1,0,0,4,NO
+10,108,Hispanic,Male,[60-70),1,1,7,5,50,1,16,0,1,1,9,>30
