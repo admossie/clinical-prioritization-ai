@@ -36,17 +36,17 @@ pip install -r requirements.txt
 
 ### 1. Train the Model
 ```bash
-python -m src.train --data-path data/raw/sample_diabetic_data.csv
+python -m src.train --data-path data/raw/diabetic_data.csv
 ```
 
 ### 2. Evaluate Model Performance
 ```bash
-python -m src.evaluate --data-path data/raw/sample_diabetic_data.csv
+python -m src.evaluate --data-path data/raw/diabetic_data.csv
 ```
 
 ### 3. External Validation
 ```bash
-python -m src.external_validate --data-path data/external/sample_mimic_like.csv
+python -m src.external_validate --data-path data/raw/diabetic_data.csv
 ```
 
 ### 4. Workflow Simulation
