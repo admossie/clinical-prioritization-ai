@@ -1,5 +1,5 @@
 
-# AI Care Prioritization Engine
+# Clinical Prioritization AI
 
 ## Overview
 
@@ -85,8 +85,8 @@ Add screenshots of the Streamlit app to `docs/README_screenshots.md` after runni
 
 If you use this project in your research, please cite:
 
-> AI Care Prioritization Engine (2026). https://github.com/your-repo-link
+> Clinical Prioritization AI (2026). https://github.com/admossie/clinical-prioritization-ai
 
 ## Contact
 
-For questions or collaboration, contact: [Your Name] <your.email@example.com>
+For questions or collaboration, contact: Abebaw Mossie <abebawdebas7@gmail.com>
