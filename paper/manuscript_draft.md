@@ -1,7 +1,7 @@
 
 
 
-# Capacity-Aware AI Care Prioritization Engine
+# Clinical Prioritization AI: Capacity-Aware Open-Source Engine
 
 ## Authors
 
@@ -11,7 +11,7 @@
 
 ## Abstract
 
-We present an open-source, capacity-aware artificial intelligence engine for hospital readmission risk prediction and clinical prioritization. The system integrates temporal feature engineering, model calibration, subgroup fairness analysis, cost-sensitive thresholding, workflow simulation, and external validation. An interactive Streamlit app enables real-time exploration and demonstration. All code, data, and reproducibility resources are provided.
+We present Clinical Prioritization AI, an open-source, capacity-aware artificial intelligence engine for hospital readmission risk prediction and clinical prioritization. The system integrates temporal feature engineering, model calibration, subgroup fairness analysis, cost-sensitive thresholding, workflow simulation, and external validation. An interactive Streamlit app enables real-time exploration and demonstration. All code, data, and reproducibility resources are provided at https://github.com/admossie/clinical-prioritization-ai.
 
 
 ## Introduction
