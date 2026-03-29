@@ -43,14 +43,15 @@ pip install -r requirements.txt
 ```
 
 
+
 ## Results
 
-- ROC-AUC: 0.78
-- PR-AUC: 0.41
-- Top 20% capture: 65%
-- Brier Score: 0.18
+- ROC-AUC: 0.69
+- PR-AUC: 0.24
+- Top 20% capture: 41%
+- Brier Score: 0.09
 
-The model demonstrates strong ranking performance and reliable probability calibration for clinical prioritization.
+The model demonstrates moderate ranking performance and probability calibration for clinical prioritization, as measured on the real dataset.
 
 ## Usage
 
