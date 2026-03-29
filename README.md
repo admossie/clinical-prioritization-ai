@@ -1,3 +1,13 @@
+## Model Performance
+
+### ROC Curve
+![ROC](outputs/figures/roc_curve.png)
+
+### Precision-Recall Curve
+![PR](outputs/figures/pr_curve.png)
+
+### Calibration Curve
+![Calibration](outputs/figures/calibration_curve.png)
 
 # Clinical Prioritization AI
 
@@ -31,6 +41,16 @@ Clone the repository and install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
+
+
+## Results
+
+- ROC-AUC: 0.78
+- PR-AUC: 0.41
+- Top 20% capture: 65%
+- Brier Score: 0.18
+
+The model demonstrates strong ranking performance and reliable probability calibration for clinical prioritization.
 
 ## Usage
 
