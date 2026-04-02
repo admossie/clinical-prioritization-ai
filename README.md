@@ -52,7 +52,10 @@ This project is suitable for scientific publication, reproducible research, and 
 - **Cost-sensitive Thresholding:** Optimizes decision thresholds for operational cost.
 - **Workflow Simulation:** Simulates real-world triage and prioritization.
 - **External Validation:** Validates model on external datasets.
-- **Streamlit App:** User-friendly interface for demo and clinical exploration.
+- **Percentile-Based Risk Tiers:** Assigns High/Medium/Low using cohort percentiles (not fixed raw-score cutoffs).
+- **Capacity-Aware Triage Dashboard:** Shows tier distribution, queue capture, patient rank, queue inclusion, and ROI.
+- **Queue Export:** One-click CSV download for the active top-N triage queue.
+- **Streamlit App:** User-friendly interface for real-time demo and clinical prioritization exploration.
 
 ## Installation
 
@@ -105,6 +108,13 @@ python -m src.workflow_simulation --scored-data outputs/tables/test_scored.csv
 streamlit run app/streamlit_app.py
 ```
 `app.py` is a thin wrapper and can also be used, but `app/streamlit_app.py` is the canonical app entrypoint.
+
+### 6. Use The Triage Dashboard
+
+- Submit a patient profile to generate risk, tier, and percentile rank.
+- Review the Capacity-Aware Triage Dashboard metrics.
+- Adjust capacity and intervention assumptions for operational planning.
+- Download the current queue using the in-app `Download current queue (CSV)` button.
 
 ## Project Structure
 
