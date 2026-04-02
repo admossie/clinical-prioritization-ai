@@ -57,6 +57,7 @@ models/*.joblib
 outputs/
 !outputs/figures/
 !outputs/tables/
+src/catboost_info/
 
 # Streamlit
 .streamlit/

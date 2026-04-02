@@ -1,3 +1,22 @@
+# Decision-Theoretic Formulation
+
+Define:
+
+- **Risk score:**
+	$$p_i = P(y_i = 1 \mid x_i)$$
+	where $p_i$ is the predicted probability of readmission for patient $i$ given features $x_i$.
+
+- **Capacity constraint:**
+	$$K$$
+	where $K$ is the number of patients that can be prioritized/intervened upon (e.g., beds, staff, or resources).
+
+- **Objective:**
+	$$
+	\max_{i \in \text{Top-}K} \sum p_i \cdot \text{benefit} - \text{cost}
+	$$
+	That is, select the $K$ highest-risk patients to maximize expected benefit minus intervention cost.
+
+👉 This decision-theoretic framing makes the approach mathematically grounded and suitable for scientific publication.
 ## Model Performance
 
 ### ROC Curve
@@ -9,7 +28,8 @@
 ### Calibration Curve
 ![Calibration](outputs/figures/calibration_curve.png)
 
-# Clinical Prioritization AI
+
+# Operationalizing Machine Learning for Clinical Decision Support: A Capacity-Aware Framework for Hospital Readmission Prioritization
 
 ## Overview
 
@@ -38,7 +58,12 @@ This project is suitable for scientific publication, reproducible research, and 
 
 Clone the repository and install dependencies:
 
-```bash
+```powershell
+# (Recommended) Create and activate a virtual environment
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
@@ -77,22 +102,24 @@ python -m src.workflow_simulation --scored-data outputs/tables/test_scored.csv
 
 ### 5. Launch the Streamlit App
 ```bash
-streamlit run app.py
-```
-or
-```bash
 streamlit run app/streamlit_app.py
 ```
+`app.py` is a thin wrapper and can also be used, but `app/streamlit_app.py` is the canonical app entrypoint.
 
 ## Project Structure
 
 - `src/` — Core modules: training, evaluation, calibration, fairness, simulation
 - `app/` — Streamlit app code
-- `models/` — Saved model and preprocessor artifacts
+- `models/` — Saved model and preprocessor artifacts (source of truth)
 - `data/` — Example raw and external datasets
-- `outputs/` — Generated results, figures, and tables
+- `outputs/` — Generated results, figures, and tables (source of truth)
 - `notebooks/` — Jupyter notebooks for reproducibility and exploration
 - `paper/` — Manuscript draft for publication
+
+### Structure Convention
+
+- Keep runtime artifacts in root-level `models/` and `outputs/` only.
+- Avoid duplicate artifact copies under `src/`.
 
 ## Reproducibility
 
