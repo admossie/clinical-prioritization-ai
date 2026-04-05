@@ -55,8 +55,11 @@ coverage.xml
 # Data and model artifacts
 models/*.joblib
 outputs/
+!outputs/
 !outputs/figures/
+!outputs/figures/*.png
 !outputs/tables/
+!outputs/tables/**
 catboost_info/
 src/catboost_info/
 
