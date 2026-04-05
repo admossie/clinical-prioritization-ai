@@ -2,7 +2,7 @@ from __future__ import annotations
 import argparse, joblib, matplotlib.pyplot as plt, pandas as pd
 from pathlib import Path
 from sklearn.metrics import roc_auc_score, average_precision_score, precision_recall_curve, roc_curve
-from .preprocess import load_and_prepare_data
+from .preprocess import load_and_prepare_data, transform_with_feature_names
 from .temporal_features import add_temporal_features
 from .train import split_data
 from .schemas import TARGET_COLUMN
@@ -18,7 +18,7 @@ def main():
     df=add_temporal_features(load_and_prepare_data(args.data_path)); _, test_df=split_data(df)
     model=joblib.load("models/best_model.joblib"); preprocessor=joblib.load("models/preprocessor.joblib")
     X_test,y_test=test_df.drop(columns=[TARGET_COLUMN]), test_df[TARGET_COLUMN]
-    Xt_test=preprocessor.transform(X_test); probs=model.predict_proba(Xt_test)[:,1]
+    Xt_test=transform_with_feature_names(X_test, preprocessor); probs=model.predict_proba(Xt_test)[:,1]
     Path("outputs/figures").mkdir(parents=True, exist_ok=True); Path("outputs/tables").mkdir(parents=True, exist_ok=True)
     metrics=pd.DataFrame([{"roc_auc":float(roc_auc_score(y_test, probs)),"pr_auc":float(average_precision_score(y_test, probs)),"top_10_capture":top_n_capture(y_test, probs, 0.10),"top_20_capture":top_n_capture(y_test, probs, 0.20),"top_30_capture":top_n_capture(y_test, probs, 0.30),**calibration_metrics(y_test, probs)}])
     metrics.to_csv("outputs/tables/evaluation_metrics.csv", index=False)

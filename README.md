@@ -137,7 +137,12 @@ Jupyter notebooks in `notebooks/` demonstrate temporal modeling, calibration, fa
 
 ## Screenshots
 
-Add screenshots of the Streamlit app to `docs/README_screenshots.md` after running the app.
+See [docs/README_screenshots.md](docs/README_screenshots.md) for the current Streamlit app screenshots.
+
+- Risk prediction: [docs/01_risk_prediction.png](docs/01_risk_prediction.png)
+- Triage dashboard: [docs/02_triage_dashboard.png](docs/02_triage_dashboard.png)
+- Explainability: [docs/03_explainability.png](docs/03_explainability.png)
+- Queue export: [docs/04_queue_export.png](docs/04_queue_export.png)
 
 ## Citation
 

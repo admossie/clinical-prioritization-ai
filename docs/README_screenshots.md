@@ -1,17 +1,33 @@
-# README Screenshot Checklist
+# App Screenshots
 
-After launching the app with `streamlit run app/streamlit_app.py`, capture and save these images under `docs/screenshots/`:
+These screenshots document the current Streamlit demo experience in a form that is suitable for the repository README, project overviews, and publication support materials.
 
-1. `01_risk_prediction.png` - patient input form and predicted risk with percentile tier.
-2. `02_triage_dashboard.png` - capacity-aware queue, hospital ROI, and rank-in-queue summary.
-3. `03_explainability.png` - SHAP or feature-importance explanation view.
-4. `04_queue_export.png` - queue preview table and CSV export button.
+To regenerate the explainability image from the saved model artifacts, run:
 
-## Suggested README embeds
-
-```md
-![Risk prediction demo](docs/screenshots/01_risk_prediction.png)
-![Capacity-aware triage dashboard](docs/screenshots/02_triage_dashboard.png)
+```powershell
+python outputs/generate_explainability_figure.py
 ```
 
-Use consistent browser width and anonymized sample inputs for publication-ready screenshots.
+## 1. Risk Prediction
+
+Shows the primary prediction interface with the patient-level risk output.
+
+![Risk prediction](01_risk_prediction.png)
+
+## 2. Capacity-Aware Triage Dashboard
+
+Shows the operational dashboard with queue planning and ROI context.
+
+![Triage dashboard](02_triage_dashboard.png)
+
+## 3. Prediction Explainability
+
+Shows feature-level explanation for a high-risk patient example from the scored test cohort.
+
+![Prediction explainability](03_explainability.png)
+
+## 4. Queue Export
+
+Shows the top queue preview and CSV export action for the active prioritization queue.
+
+![Queue export](04_queue_export.png)

@@ -1,7 +1,7 @@
 from __future__ import annotations
 import argparse, json, joblib, pandas as pd
 from sklearn.metrics import roc_auc_score, average_precision_score, brier_score_loss
-from .preprocess import align_to_preprocessor_input
+from .preprocess import align_to_preprocessor_input, transform_with_feature_names
 
 def map_external_dataset(df:pd.DataFrame, mapping:dict)->pd.DataFrame:
     out=pd.DataFrame()
@@ -10,7 +10,7 @@ def map_external_dataset(df:pd.DataFrame, mapping:dict)->pd.DataFrame:
 
 def evaluate_external(model, preprocessor, df, target_col="target"):
     X=align_to_preprocessor_input(df.drop(columns=[target_col]), preprocessor); y=df[target_col]
-    Xt=preprocessor.transform(X); probs=model.predict_proba(Xt)[:,1]
+    Xt=transform_with_feature_names(X, preprocessor); probs=model.predict_proba(Xt)[:,1]
     return {"roc_auc":float(roc_auc_score(y, probs)),"pr_auc":float(average_precision_score(y, probs)),"brier_score":float(brier_score_loss(y, probs))}, probs
 
 def main():

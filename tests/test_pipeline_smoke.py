@@ -3,7 +3,7 @@ from pathlib import Path
 import joblib
 import numpy as np
 
-from src.preprocess import build_preprocessor, load_and_prepare_data
+from src.preprocess import build_preprocessor, load_and_prepare_data, transform_with_feature_names
 from src.schemas import TARGET_COLUMN
 from src.temporal_features import add_temporal_features
 
@@ -32,7 +32,7 @@ def test_saved_model_artifacts_score_probabilities():
     model = joblib.load(MODEL_PATH)
     preprocessor = joblib.load(PREPROCESSOR_PATH)
 
-    xt = preprocessor.transform(x)
+    xt = transform_with_feature_names(x, preprocessor)
     probs = model.predict_proba(xt)[:, 1]
 
     assert len(probs) == len(x)
