@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clinical Prioritization AI</title>
+  <meta name="description" content="Capacity-aware hospital readmission prioritization with calibrated machine learning, workflow simulation, fairness analysis, and a Streamlit demo.">
+  <style>
+    :root {
+      --ink: #22304d;
+      --muted: #5f6f8d;
+      --bg: #f4f7fc;
+      --card: #ffffff;
+      --line: #dbe3f2;
+      --accent: #d94b61;
+      --accent-dark: #8e2030;
+      --green: #157648;
+      --gold: #9d6c00;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #eef3fb 0%, #f8fbff 100%);
+      line-height: 1.5;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #24314f 0%, #30456f 100%);
+      color: #fff;
+      padding: 56px 24px 48px;
+    }
+
+    .hero-inner,
+    .section,
+    .footer {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 6px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #dce4f7;
+    }
+
+    h1 {
+      margin: 16px 0 14px;
+      font-size: clamp(36px, 6vw, 68px);
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+      max-width: 980px;
+    }
+
+    .hero p {
+      max-width: 760px;
+      font-size: 20px;
+      color: #dce4f7;
+      margin: 0 0 28px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 18px;
+      border-radius: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+      opacity: 0.95;
+    }
+
+    .button-primary {
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .button-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .section {
+      padding: 34px 24px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 20px;
+    }
+
+    .two-up {
+      grid-template-columns: 1.25fr 0.95fr;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 26px;
+      box-shadow: 0 16px 45px rgba(34, 48, 77, 0.06);
+    }
+
+    .card h2,
+    .card h3 {
+      margin-top: 0;
+      line-height: 1.1;
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .stat {
+      background: #f8fbff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    .tiers {
+      display: grid;
+      gap: 14px;
+    }
+
+    .tier {
+      border-radius: 18px;
+      padding: 18px 20px;
+      border: 1px solid;
+    }
+
+    .tier h3 {
+      margin-bottom: 6px;
+      font-size: 18px;
+    }
+
+    .tier p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .tier-high {
+      background: #fde9eb;
+      border-color: #efb1ba;
+    }
+
+    .tier-high h3 {
+      color: var(--accent-dark);
+    }
+
+    .tier-medium {
+      background: #fff3dc;
+      border-color: #efcc84;
+    }
+
+    .tier-medium h3 {
+      color: var(--gold);
+    }
+
+    .tier-low {
+      background: #e9f6ee;
+      border-color: #aed9bf;
+    }
+
+    .tier-low h3 {
+      color: var(--green);
+    }
+
+    ul {
+      padding-left: 20px;
+      margin-bottom: 0;
+    }
+
+    li + li {
+      margin-top: 8px;
+    }
+
+    .screenshot-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .shot {
+      overflow: hidden;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .shot img {
+      width: 100%;
+      display: block;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+    }
+
+    .shot-label {
+      padding: 12px 14px 14px;
+      font-weight: 600;
+    }
+
+    .footer {
+      padding: 12px 24px 40px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .two-up,
+      .stats,
+      .screenshot-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        padding-top: 42px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">Clinical Decision Support · ML Operations</div>
+      <h1>Clinical Prioritization AI</h1>
+      <p>Capacity-aware hospital readmission prioritization with calibrated machine learning, fairness analysis, workflow simulation, explainability, and a Streamlit demo.</p>
+      <div class="hero-actions">
+        <a class="button button-primary" href="https://github.com/admossie/clinical-prioritization-ai">View Repository</a>
+        <a class="button button-secondary" href="https://github.com/admossie/clinical-prioritization-ai/releases/tag/v1.0.0">Release v1.0.0</a>
+        <a class="button button-secondary" href="https://github.com/admossie/clinical-prioritization-ai/blob/main/README.md">Read Documentation</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="section">
+      <div class="grid two-up">
+        <div class="card">
+          <h2>From risk scores to actionable queues</h2>
+          <p class="lead">This project turns readmission prediction into operational prioritization: who to target, under what capacity limit, with what expected return.</p>
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-label">ROC-AUC</div>
+              <div class="stat-value">0.69</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">PR-AUC</div>
+              <div class="stat-value">0.24</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Top 20% capture</div>
+              <div class="stat-value">41%</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Brier score</div>
+              <div class="stat-value">0.09</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tiers">
+          <div class="tier tier-high">
+            <h3>High tier</h3>
+            <p>Focused intervention queue for patients with the strongest current prioritization signal.</p>
+          </div>
+          <div class="tier tier-medium">
+            <h3>Medium tier</h3>
+            <p>Operational middle band for monitoring, escalation, or secondary review.</p>
+          </div>
+          <div class="tier tier-low">
+            <h3>Low tier</h3>
+            <p>Lower-priority patients under current capacity and intervention assumptions.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="grid two-up">
+        <div class="card">
+          <h2>What is included</h2>
+          <ul>
+            <li>Temporal feature engineering from longitudinal patient history</li>
+            <li>Model calibration and subgroup fairness analysis</li>
+            <li>Cost-sensitive thresholding and queue-based prioritization</li>
+            <li>Workflow simulation and ROI estimation</li>
+            <li>External validation pipeline</li>
+            <li>Interactive Streamlit app with queue export</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h2>Quickstart</h2>
+          <ul>
+            <li>Create a virtual environment and install dependencies from `requirements.txt`</li>
+            <li>Train with `python -m src.train --data-path data/raw/diabetic_data.csv`</li>
+            <li>Evaluate with `python -m src.evaluate --data-path data/raw/diabetic_data.csv`</li>
+            <li>Launch the app with `streamlit run app/streamlit_app.py`</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="card">
+        <h2>Streamlit interface</h2>
+        <div class="screenshot-grid">
+          <a class="shot" href="01_risk_prediction.png">
+            <img src="01_risk_prediction.png" alt="Risk prediction screenshot">
+            <div class="shot-label">Risk prediction</div>
+          </a>
+          <a class="shot" href="02_triage_dashboard.png">
+            <img src="02_triage_dashboard.png" alt="Triage dashboard screenshot">
+            <div class="shot-label">Triage dashboard</div>
+          </a>
+          <a class="shot" href="03_explainability.png">
+            <img src="03_explainability.png" alt="Explainability screenshot">
+            <div class="shot-label">Explainability</div>
+          </a>
+          <a class="shot" href="04_queue_export.png">
+            <img src="04_queue_export.png" alt="Queue export screenshot">
+            <div class="shot-label">Queue export</div>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>Repository: <a href="https://github.com/admossie/clinical-prioritization-ai">admossie/clinical-prioritization-ai</a></div>
+  </footer>
+</body>
+</html>
