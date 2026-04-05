@@ -8,8 +8,7 @@ from .schemas import TARGET_SOURCE_COLUMN, TARGET_COLUMN
 
 def load_and_prepare_data(path:str)->pd.DataFrame:
     import numpy as np
-    df = pd.read_csv(path).replace("?", pd.NA)
-    df = df.replace({pd.NA: np.nan})
+    df = pd.read_csv(path).replace("?", np.nan)
     if TARGET_SOURCE_COLUMN in df.columns and TARGET_COLUMN not in df.columns:
         df[TARGET_COLUMN]=(df[TARGET_SOURCE_COLUMN]=="<30").astype(int)
         df=df.drop(columns=[TARGET_SOURCE_COLUMN])

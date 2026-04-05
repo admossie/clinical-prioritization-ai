@@ -9,9 +9,7 @@
 
 ## Abstract
 
-## Abstract
-
-We present Clinical Prioritization AI, an open-source, capacity-aware artificial intelligence engine for hospital readmission risk prediction and clinical prioritization. The system integrates temporal feature engineering, model calibration, subgroup fairness analysis, cost-sensitive thresholding, workflow simulation, and external validation. An interactive Streamlit app enables real-time exploration and demonstration. All code, data, and reproducibility resources are provided at https://github.com/admossie/clinical-prioritization-ai.
+We present Clinical Prioritization AI, an open-source, capacity-aware engine for hospital readmission risk prediction and operational triage. The pipeline combines temporal feature engineering, calibrated machine learning, subgroup fairness analysis, cost-sensitive threshold selection, workflow simulation, and external validation. On the held-out benchmark cohort, the best model (LightGBM) achieved a ROC-AUC of 0.689, a PR-AUC of 0.244, and captured 41.2% of true readmissions within the top 20% highest-risk patients. A companion Streamlit app exposes percentile-based risk tiers, queue ranking, explainability, and ROI-aware workflow simulation for practical demonstration. All code, sample data, and reproducibility artifacts are openly available at https://github.com/admossie/clinical-prioritization-ai.
 
 
 ## Introduction
@@ -25,7 +23,7 @@ Hospital readmissions are a persistent challenge for healthcare systems, impacti
 We use publicly available datasets, including MIMIC-like samples, and provide preprocessing scripts for data cleaning and feature engineering. Temporal features are constructed from patient encounter histories to enable dynamic risk estimation.
 
 ### Model Development
-Models are trained using scikit-learn and XGBoost, with hyperparameter tuning and cross-validation. Model probabilities are calibrated using standard techniques and visualized for reliability.
+We benchmark logistic regression, XGBoost, LightGBM, CatBoost, and a soft-voting ensemble using group-aware train/test splitting at the patient level. Models are compared with ROC-AUC, PR-AUC, and recall at low false-positive rates, after which the best-performing pipeline is serialized for evaluation and app deployment. Probability calibration and reliability plots are generated to support clinically interpretable risk estimates.
 
 ### Fairness and Thresholding
 Subgroup metrics are computed to assess and mitigate bias across demographics. Cost-sensitive thresholding is applied to optimize for operational cost and workflow constraints.
@@ -50,7 +48,7 @@ The engine supports validation on external datasets to assess transportability a
 ### Figure 3. Workflow Simulation Output
 *See outputs/tables/workflow_scenarios.csv for simulated prioritization results.*
 
-The engine achieves strong discrimination (e.g., ROC-AUC, PR-AUC) and calibration on benchmark datasets. Subgroup analysis demonstrates fairness across key demographics. Workflow simulation quantifies the impact of thresholding and capacity constraints, providing actionable insights for clinical operations.
+On the internal held-out test set, the best LightGBM model achieved a ROC-AUC of 0.689, a PR-AUC of 0.244, and a Brier score of 0.091. The ranked-risk workflow captured 26.1% of readmissions in the top 10% of patients and 41.2% in the top 20%, supporting targeted care-management outreach under limited capacity. Fairness, calibration, and queue-simulation outputs are exported as reproducible tables and figures for auditability.
 
 
 ## Reproducibility
@@ -71,7 +69,7 @@ The AI Care Prioritization Engine advances the state of the art in clinical risk
 ## Code and Data Availability
 
 
-All code and sample data are available at: https://github.com/your-repo-link
+All code and sample data are available at: https://github.com/admossie/clinical-prioritization-ai
 
 ## References
 
