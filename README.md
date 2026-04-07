@@ -1,6 +1,6 @@
 # Operationalizing Machine Learning for Clinical Decision Support: A Capacity-Aware Framework for Hospital Readmission Prioritization
 
-[![Release](https://img.shields.io/github/v/release/admossie/clinical-prioritization-ai)](https://github.com/admossie/clinical-prioritization-ai/releases/tag/v1.0.0)
+[![Release](https://img.shields.io/github/v/release/admossie/clinical-prioritization-ai)](https://github.com/admossie/clinical-prioritization-ai/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 Capacity-aware hospital readmission prioritization with calibrated machine learning, workflow simulation, fairness analysis, and an interactive Streamlit demo.
