@@ -4,7 +4,11 @@ import joblib
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 
-from src.preprocess import build_preprocessor, load_and_prepare_data, transform_with_feature_names
+from src.preprocess import (
+    build_preprocessor,
+    load_and_prepare_data,
+    transform_with_feature_names,
+)
 from src.schemas import TARGET_COLUMN
 from src.temporal_features import add_temporal_features
 
@@ -19,7 +23,9 @@ def _fit_fallback_model(df):
     y = df[TARGET_COLUMN]
     xt = preprocessor.fit_transform(x)
 
-    model = LogisticRegression(max_iter=500, class_weight="balanced", solver="liblinear")
+    model = LogisticRegression(
+        max_iter=500, class_weight="balanced", solver="liblinear"
+    )
     model.fit(xt, y)
     return model, preprocessor
 

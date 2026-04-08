@@ -36,7 +36,9 @@ def split_data(df: pd.DataFrame, target_col: str = TARGET_COLUMN):
         x = df.drop(columns=[target_col])
         y = df[target_col]
         groups = df["patient_nbr"]
-        splitter = GroupShuffleSplit(n_splits=1, test_size=0.25, random_state=DEFAULT_RANDOM_STATE)
+        splitter = GroupShuffleSplit(
+            n_splits=1, test_size=0.25, random_state=DEFAULT_RANDOM_STATE
+        )
         train_idx, test_idx = next(splitter.split(x, y, groups))
         return df.iloc[train_idx].copy(), df.iloc[test_idx].copy()
 
@@ -50,13 +52,15 @@ def split_data(df: pd.DataFrame, target_col: str = TARGET_COLUMN):
 
 
 def feature_engineering(df: pd.DataFrame) -> pd.DataFrame:
-    # Placeholder for future feature additions while keeping the current pipeline stable.
+    # Placeholder for future feature additions while keeping the pipeline stable.
     return df.copy()
 
 
 def build_candidate_models():
     models = {
-        "logreg": LogisticRegression(max_iter=1000, class_weight="balanced", solver="liblinear"),
+        "logreg": LogisticRegression(
+            max_iter=1000, class_weight="balanced", solver="liblinear"
+        ),
         "xgb": XGBClassifier(
             n_estimators=150,
             max_depth=4,
@@ -138,18 +142,26 @@ def main():
 
     if len(models) >= 2:
         ensemble = VotingClassifier(
-            estimators=[(name, model) for name, model in build_candidate_models().items()],
+            estimators=[
+                (name, model) for name, model in build_candidate_models().items()
+            ],
             voting="soft",
         )
         ensemble.fit(xt_train, y_train)
         ensemble_probs = ensemble.predict_proba(xt_test)[:, 1]
-        rows.append({"model": "ensemble", **evaluate_predictions(y_test, ensemble_probs)})
+        rows.append(
+            {"model": "ensemble", **evaluate_predictions(y_test, ensemble_probs)}
+        )
         fitted["ensemble"] = (ensemble, ensemble_probs)
 
-    results_df = pd.DataFrame(rows).sort_values(
-        ["roc_auc", "recall@10%FPR", "pr_auc"],
-        ascending=False,
-    ).reset_index(drop=True)
+    results_df = (
+        pd.DataFrame(rows)
+        .sort_values(
+            ["roc_auc", "recall@10%FPR", "pr_auc"],
+            ascending=False,
+        )
+        .reset_index(drop=True)
+    )
 
     best_name = str(results_df.iloc[0]["model"])
     best_model, best_probs = fitted[best_name]
@@ -161,7 +173,9 @@ def main():
     joblib.dump(best_model, "models/best_model.joblib")
     joblib.dump(preprocessor, "models/preprocessor.joblib")
     results_df.to_csv("outputs/tables/model_comparison.csv", index=False)
-    pd.DataFrame([best_threshold]).to_csv("outputs/tables/best_threshold.csv", index=False)
+    pd.DataFrame([best_threshold]).to_csv(
+        "outputs/tables/best_threshold.csv", index=False
+    )
     threshold_table.to_csv("outputs/tables/threshold_sweep.csv", index=False)
 
     scored = test_df.copy()

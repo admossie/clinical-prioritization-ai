@@ -33,6 +33,13 @@ streamlit run app/streamlit_app.py
 
 `app.py` is a thin wrapper. `app/streamlit_app.py` is the canonical app entrypoint.
 
+## Startup resources
+
+- `STARTUP_GUIDE.md` - product positioning and pilot-readiness checklist
+- `README_STARTUP.md` - investor/demo-friendly project overview
+- `CONTRIBUTING.md` - contributor and team workflow guidance
+- `Dockerfile` - simple containerized app deployment
+
 ## Demo workflow
 
 1. Train the model on the public diabetic readmission dataset.
