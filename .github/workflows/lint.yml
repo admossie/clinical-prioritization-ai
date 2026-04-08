@@ -22,7 +22,7 @@ jobs:
           pip install -r requirements-dev.txt
       - name: Run black check
         run: |
-          black --check .
+          black --check app src tests outputs
       - name: Run flake8
         run: |
-          flake8 .
+          flake8 app src tests outputs

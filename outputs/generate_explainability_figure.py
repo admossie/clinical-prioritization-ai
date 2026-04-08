@@ -5,15 +5,18 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-import joblib
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import shap
+import joblib  # noqa: E402
+import matplotlib.pyplot as plt  # noqa: E402
+import numpy as np  # noqa: E402
+import pandas as pd  # noqa: E402
+import shap  # noqa: E402
 
-from src.preprocess import load_and_prepare_data, transform_with_feature_names
-from src.schemas import TARGET_COLUMN
-from src.temporal_features import add_temporal_features
+from src.preprocess import (  # noqa: E402
+    load_and_prepare_data,
+    transform_with_feature_names,
+)
+from src.schemas import TARGET_COLUMN  # noqa: E402
+from src.temporal_features import add_temporal_features  # noqa: E402
 
 MODEL_PATH = ROOT / "models" / "best_model.joblib"
 PREPROCESSOR_PATH = ROOT / "models" / "preprocessor.joblib"
@@ -31,7 +34,11 @@ def format_feature_name(name: str) -> str:
 
 
 def load_high_risk_example(scored: pd.DataFrame, raw: pd.DataFrame) -> pd.DataFrame:
-    key_cols = [column for column in ("encounter_id", "patient_nbr") if column in scored.columns and column in raw.columns]
+    key_cols = [
+        column
+        for column in ("encounter_id", "patient_nbr")
+        if column in scored.columns and column in raw.columns
+    ]
     if not key_cols:
         return raw.head(1).copy()
 
@@ -45,9 +52,15 @@ def load_high_risk_example(scored: pd.DataFrame, raw: pd.DataFrame) -> pd.DataFr
 def save_bar_chart(contribution_df: pd.DataFrame, out_path: Path) -> None:
     plt.close("all")
     fig, ax = plt.subplots(figsize=(8.6, 4.4), facecolor="white")
-    colors = ["#1565C0" if value < 0 else "#FF0051" for value in contribution_df["impact"]]
-    ax.bar(range(len(contribution_df)), contribution_df["impact"], color=colors, width=0.8)
-    ax.set_title("Top feature contributions", loc="left", fontsize=14, fontweight="bold")
+    colors = [
+        "#1565C0" if value < 0 else "#FF0051" for value in contribution_df["impact"]
+    ]
+    ax.bar(
+        range(len(contribution_df)), contribution_df["impact"], color=colors, width=0.8
+    )
+    ax.set_title(
+        "Top feature contributions", loc="left", fontsize=14, fontweight="bold"
+    )
     ax.axhline(0, color="#CCCCCC", linewidth=1)
     ax.grid(axis="y", color="#EAEAEA", linewidth=0.8)
     ax.set_axisbelow(True)
@@ -70,7 +83,9 @@ def save_waterfall_plot(shap_values, out_path: Path) -> None:
     plt.close("all")
 
 
-def combine_panels(bar_path: Path, waterfall_path: Path, risk: float, out_path: Path) -> None:
+def combine_panels(
+    bar_path: Path, waterfall_path: Path, risk: float, out_path: Path
+) -> None:
     bar_img = plt.imread(bar_path)
     waterfall_img = plt.imread(waterfall_path)
 
@@ -79,7 +94,14 @@ def combine_panels(bar_path: Path, waterfall_path: Path, risk: float, out_path: 
 
     header = fig.add_subplot(grid[0:2, 0])
     header.axis("off")
-    header.text(0.0, 0.80, "Prediction Explainability", fontsize=30, fontweight="bold", color="#1F2A44")
+    header.text(
+        0.0,
+        0.80,
+        "Prediction Explainability",
+        fontsize=30,
+        fontweight="bold",
+        color="#1F2A44",
+    )
     header.text(
         0.0,
         0.36,
@@ -107,7 +129,11 @@ def main() -> None:
     raw = add_temporal_features(load_and_prepare_data(str(RAW_DATA_PATH)))
 
     example_row = load_high_risk_example(scored, raw)
-    x = example_row.drop(columns=[TARGET_COLUMN]) if TARGET_COLUMN in example_row.columns else example_row.copy()
+    x = (
+        example_row.drop(columns=[TARGET_COLUMN])
+        if TARGET_COLUMN in example_row.columns
+        else example_row.copy()
+    )
     xt = transform_with_feature_names(x, preprocessor)
     risk = float(model.predict_proba(xt)[:, 1][0])
 

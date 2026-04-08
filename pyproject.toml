@@ -34,3 +34,7 @@ include-package-data = true
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["*"]
+
+[tool.black]
+line-length = 88
+target-version = ["py39"]

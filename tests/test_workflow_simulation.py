@@ -1,6 +1,10 @@
 import pandas as pd
 
-from src.workflow_simulation import hospital_roi, run_workflow_scenarios, simulate_workflow
+from src.workflow_simulation import (
+    hospital_roi,
+    run_workflow_scenarios,
+    simulate_workflow,
+)
 
 
 def test_workflow_helpers_return_expected_shapes():

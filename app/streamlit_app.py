@@ -1,21 +1,21 @@
-
 import sys
 import time
+from pathlib import Path
+
 import joblib
-import pandas as pd
-import streamlit as st
-import shap
 import matplotlib.pyplot as plt
 import numpy as np
-from pathlib import Path
+import pandas as pd
+import shap
+import streamlit as st
 
 ROOT = Path(__file__).resolve().parents[1]
 MODEL_PATH = ROOT / "models" / "best_model.joblib"
 PREPROC_PATH = ROOT / "models" / "preprocessor.joblib"
 REFERENCE_SCORES_PATH = ROOT / "outputs" / "tables" / "test_scored.csv"
 sys.path.append(str(ROOT))
-from src.preprocess import transform_with_feature_names
-from src.workflow_simulation import hospital_roi
+from src.preprocess import transform_with_feature_names  # noqa: E402
+from src.workflow_simulation import hospital_roi  # noqa: E402
 
 
 def get_screenshot_mode() -> str:
@@ -28,9 +28,10 @@ def get_screenshot_mode() -> str:
 def format_explainability_feature_name(name: str) -> str:
     for prefix in ("num__", "cat__", "num_missing__", "cat_missing__"):
         if name.startswith(prefix):
-            name = name[len(prefix):]
+            name = name[len(prefix) :]
             break
     return name.replace("_", " ")
+
 
 # --------------------------------------------------
 # CONFIG
@@ -40,29 +41,105 @@ DEFAULT_CAPACITY = 200
 USE_CAPACITY_OVERRIDE = True
 
 REQUIRED_INPUT_COLUMNS = [
-    "encounter_id", "patient_nbr", "race", "gender", "age", "weight", "admission_type_id",
-    "discharge_disposition_id", "admission_source_id", "time_in_hospital", "payer_code",
-    "medical_specialty", "num_lab_procedures", "num_procedures", "num_medications",
-    "number_outpatient", "number_emergency", "number_inpatient", "diag_1", "diag_2", "diag_3",
-    "number_diagnoses", "max_glu_serum", "A1Cresult", "metformin", "repaglinide", "nateglinide",
-    "chlorpropamide", "glimepiride", "acetohexamide", "glipizide", "glyburide", "tolbutamide",
-    "pioglitazone", "rosiglitazone", "acarbose", "miglitol", "troglitazone", "tolazamide",
-    "examide", "citoglipton", "insulin", "glyburide-metformin", "glipizide-metformin",
-    "glimepiride-pioglitazone", "metformin-rosiglitazone", "metformin-pioglitazone", "change",
-    "diabetesMed", "encounter_number", "prior_encounters", "prior_number_inpatient_sum",
-    "prior_number_inpatient_mean", "prior_number_outpatient_sum", "prior_number_outpatient_mean",
-    "prior_number_emergency_sum", "prior_number_emergency_mean", "prior_total_visits",
-    "diag_delta", "med_delta", "prior_positive_count", "ever_prior_positive",
+    "encounter_id",
+    "patient_nbr",
+    "race",
+    "gender",
+    "age",
+    "weight",
+    "admission_type_id",
+    "discharge_disposition_id",
+    "admission_source_id",
+    "time_in_hospital",
+    "payer_code",
+    "medical_specialty",
+    "num_lab_procedures",
+    "num_procedures",
+    "num_medications",
+    "number_outpatient",
+    "number_emergency",
+    "number_inpatient",
+    "diag_1",
+    "diag_2",
+    "diag_3",
+    "number_diagnoses",
+    "max_glu_serum",
+    "A1Cresult",
+    "metformin",
+    "repaglinide",
+    "nateglinide",
+    "chlorpropamide",
+    "glimepiride",
+    "acetohexamide",
+    "glipizide",
+    "glyburide",
+    "tolbutamide",
+    "pioglitazone",
+    "rosiglitazone",
+    "acarbose",
+    "miglitol",
+    "troglitazone",
+    "tolazamide",
+    "examide",
+    "citoglipton",
+    "insulin",
+    "glyburide-metformin",
+    "glipizide-metformin",
+    "glimepiride-pioglitazone",
+    "metformin-rosiglitazone",
+    "metformin-pioglitazone",
+    "change",
+    "diabetesMed",
+    "encounter_number",
+    "prior_encounters",
+    "prior_number_inpatient_sum",
+    "prior_number_inpatient_mean",
+    "prior_number_outpatient_sum",
+    "prior_number_outpatient_mean",
+    "prior_number_emergency_sum",
+    "prior_number_emergency_mean",
+    "prior_total_visits",
+    "diag_delta",
+    "med_delta",
+    "prior_positive_count",
+    "ever_prior_positive",
 ]
 
 CATEGORICAL_NONE_DEFAULTS = {
-    "payer_code", "medical_specialty", "diag_1", "diag_2", "diag_3", "max_glu_serum", "A1Cresult",
-    "metformin", "repaglinide", "nateglinide", "chlorpropamide", "glimepiride", "acetohexamide",
-    "glipizide", "glyburide", "tolbutamide", "pioglitazone", "rosiglitazone", "acarbose", "miglitol",
-    "troglitazone", "tolazamide", "examide", "citoglipton", "insulin", "glyburide-metformin",
-    "glipizide-metformin", "glimepiride-pioglitazone", "metformin-rosiglitazone", "metformin-pioglitazone",
-    "change", "diabetesMed",
+    "payer_code",
+    "medical_specialty",
+    "diag_1",
+    "diag_2",
+    "diag_3",
+    "max_glu_serum",
+    "A1Cresult",
+    "metformin",
+    "repaglinide",
+    "nateglinide",
+    "chlorpropamide",
+    "glimepiride",
+    "acetohexamide",
+    "glipizide",
+    "glyburide",
+    "tolbutamide",
+    "pioglitazone",
+    "rosiglitazone",
+    "acarbose",
+    "miglitol",
+    "troglitazone",
+    "tolazamide",
+    "examide",
+    "citoglipton",
+    "insulin",
+    "glyburide-metformin",
+    "glipizide-metformin",
+    "glimepiride-pioglitazone",
+    "metformin-rosiglitazone",
+    "metformin-pioglitazone",
+    "change",
+    "diabetesMed",
 }
+
 
 @st.cache_resource
 def load_pipeline():
@@ -86,7 +163,9 @@ def load_reference_cohort(path: Path) -> pd.DataFrame:
     return cohort.dropna(subset=["risk_score"]).reset_index(drop=True)
 
 
-def get_percentile_thresholds(reference_scores: np.ndarray, medium_pct: float = 70.0, high_pct: float = 90.0):
+def get_percentile_thresholds(
+    reference_scores: np.ndarray, medium_pct: float = 70.0, high_pct: float = 90.0
+):
     if reference_scores.size == 0:
         return 0.12, 0.20
     medium_cut = float(np.percentile(reference_scores, medium_pct))
@@ -108,7 +187,9 @@ def get_risk_percentile(risk: float, reference_scores: np.ndarray) -> float:
     return float((reference_scores < risk).mean() * 100.0)
 
 
-def assign_tiers_to_cohort(cohort: pd.DataFrame, medium_cut: float, high_cut: float) -> pd.DataFrame:
+def assign_tiers_to_cohort(
+    cohort: pd.DataFrame, medium_cut: float, high_cut: float
+) -> pd.DataFrame:
     tiered = cohort.copy()
     tiered["tier"] = np.where(
         tiered["risk_score"] >= high_cut,
@@ -136,16 +217,23 @@ def apply_missing_input_defaults(row: pd.DataFrame) -> pd.DataFrame:
             row[col] = 0
     return row
 
+
 if not MODEL_PATH.exists() or not PREPROC_PATH.exists():
     st.warning("Train the model first.")
     st.stop()
 
 reference_cohort = load_reference_cohort(REFERENCE_SCORES_PATH)
-reference_scores = reference_cohort["risk_score"].to_numpy(dtype=float) if not reference_cohort.empty else np.array([], dtype=float)
+reference_scores = (
+    reference_cohort["risk_score"].to_numpy(dtype=float)
+    if not reference_cohort.empty
+    else np.array([], dtype=float)
+)
 st.title("AI Care Prioritization Engine")
 st.caption("Capacity-aware readmission prioritization demo")
 if reference_scores.size == 0:
-    st.warning("Reference risk cohort not found. Falling back to default percentile cutoffs.")
+    st.warning(
+        "Reference risk cohort not found. Falling back to default percentile cutoffs."
+    )
 
 if "model" not in st.session_state or "preprocessor" not in st.session_state:
     with st.spinner("Loading model artifacts..."):
@@ -159,6 +247,7 @@ preprocessor = st.session_state["preprocessor"]
 screenshot_mode = get_screenshot_mode()
 docs_explainability_only = screenshot_mode == "explainability"
 
+
 # SHAP explainer cache
 @st.cache_resource
 def load_explainer(_model):
@@ -169,6 +258,7 @@ def load_explainer(_model):
         return shap.Explainer(_model)
     except Exception:
         return None
+
 
 explainer = load_explainer(model)
 
@@ -224,7 +314,7 @@ else:
         age = st.selectbox(
             "Age band",
             ["[30-40)", "[40-50)", "[50-60)", "[60-70)", "[70-80)", "[80-90)"],
-            index=2
+            index=2,
         )
         gender = st.selectbox("Gender", ["Female", "Male"])
         race = st.selectbox("Race", ["Caucasian", "Hispanic", "Other"])
@@ -259,41 +349,42 @@ if submitted:
     encounter_number = prior_encounters + 1
     ever_prior_positive = 1 if prior_positive_count > 0 else 0
 
-
     # Build the row with user inputs and sensible defaults
     row_dict = {col: 0 for col in REQUIRED_INPUT_COLUMNS}
     # Fill in user-provided values
-    row_dict.update({
-        'encounter_id': 999999,
-        'patient_nbr': 9999,
-        'race': race,
-        'gender': gender,
-        'age': age,
-        'admission_type_id': admission_type_id,
-        'discharge_disposition_id': discharge_disposition_id,
-        'admission_source_id': admission_source_id,
-        'time_in_hospital': time_in_hospital,
-        'num_lab_procedures': num_lab_procedures,
-        'num_procedures': num_procedures,
-        'num_medications': num_medications,
-        'number_outpatient': number_outpatient,
-        'number_emergency': number_emergency,
-        'number_inpatient': number_inpatient,
-        'number_diagnoses': number_diagnoses,
-        'encounter_number': encounter_number,
-        'prior_encounters': prior_encounters,
-        'prior_number_inpatient_sum': prior_inpatient,
-        'prior_number_inpatient_mean': float(prior_inpatient),
-        'prior_number_outpatient_sum': prior_outpatient,
-        'prior_number_outpatient_mean': float(prior_outpatient),
-        'prior_number_emergency_sum': prior_emergency,
-        'prior_number_emergency_mean': float(prior_emergency),
-        'prior_total_visits': prior_encounters,
-        'diag_delta': diag_delta,
-        'med_delta': med_delta,
-        'prior_positive_count': prior_positive_count,
-        'ever_prior_positive': ever_prior_positive,
-    })
+    row_dict.update(
+        {
+            "encounter_id": 999999,
+            "patient_nbr": 9999,
+            "race": race,
+            "gender": gender,
+            "age": age,
+            "admission_type_id": admission_type_id,
+            "discharge_disposition_id": discharge_disposition_id,
+            "admission_source_id": admission_source_id,
+            "time_in_hospital": time_in_hospital,
+            "num_lab_procedures": num_lab_procedures,
+            "num_procedures": num_procedures,
+            "num_medications": num_medications,
+            "number_outpatient": number_outpatient,
+            "number_emergency": number_emergency,
+            "number_inpatient": number_inpatient,
+            "number_diagnoses": number_diagnoses,
+            "encounter_number": encounter_number,
+            "prior_encounters": prior_encounters,
+            "prior_number_inpatient_sum": prior_inpatient,
+            "prior_number_inpatient_mean": float(prior_inpatient),
+            "prior_number_outpatient_sum": prior_outpatient,
+            "prior_number_outpatient_mean": float(prior_outpatient),
+            "prior_number_emergency_sum": prior_emergency,
+            "prior_number_emergency_mean": float(prior_emergency),
+            "prior_total_visits": prior_encounters,
+            "diag_delta": diag_delta,
+            "med_delta": med_delta,
+            "prior_positive_count": prior_positive_count,
+            "ever_prior_positive": ever_prior_positive,
+        }
+    )
     row = pd.DataFrame([row_dict])
     row = apply_missing_input_defaults(row)
 
@@ -325,17 +416,26 @@ if submitted:
     else:
         st.success("Low-priority patient based on current model.")
 
-    st.caption("Demo prediction only. Final trustworthiness depends on training with the full public dataset.")
+    st.caption(
+        "Demo prediction only. Final trustworthiness depends on training "
+        "with the full public dataset."
+    )
 
     # Model explanation shown automatically for screenshots and demos.
     if not docs_explainability_only:
         st.subheader("Prediction Explainability")
     if explainer is None:
-        st.info("SHAP explainer is not available for the current model in this session.")
+        st.info(
+            "SHAP explainer is not available for the current model in this session."
+        )
     else:
         try:
             t_shap0 = time.time()
-            Xt_dense = Xt.sparse.to_dense() if hasattr(Xt, "sparse") else Xt.toarray() if hasattr(Xt, "toarray") else Xt
+            Xt_dense = (
+                Xt.sparse.to_dense()
+                if hasattr(Xt, "sparse")
+                else Xt.toarray() if hasattr(Xt, "toarray") else Xt
+            )
             shap_values = explainer(Xt_dense)
             t_shap1 = time.time()
 
@@ -380,30 +480,72 @@ if submitted:
 
     # Hospital-grade triage planning powered by the scored cohort.
     st.subheader("Capacity-Aware Triage Dashboard")
-    st.caption("Plan queue size, expected capture, and ROI using the scored reference population.")
+    st.caption(
+        "Plan queue size, expected capture, and ROI using the scored "
+        "reference population."
+    )
     with st.expander("Queue and ROI Parameters", expanded=True):
         max_capacity = int(max(len(reference_cohort), 1))
         default_capacity = int(min(DEFAULT_CAPACITY, max_capacity))
-        capacity = st.number_input("Capacity (patients)", min_value=1, max_value=max_capacity, value=default_capacity)
-        intervention_cost = st.number_input("Intervention cost per patient ($)", min_value=0, value=150)
-        readmission_cost = st.number_input("Readmission cost per event ($)", min_value=0, value=12000)
-        intervention_effectiveness = st.slider("Intervention effectiveness (fraction)", min_value=0.0, max_value=1.0, value=0.18, step=0.01)
+        capacity = st.number_input(
+            "Capacity (patients)",
+            min_value=1,
+            max_value=max_capacity,
+            value=default_capacity,
+        )
+        intervention_cost = st.number_input(
+            "Intervention cost per patient ($)",
+            min_value=0,
+            value=150,
+        )
+        readmission_cost = st.number_input(
+            "Readmission cost per event ($)", min_value=0, value=12000
+        )
+        intervention_effectiveness = st.slider(
+            "Intervention effectiveness (fraction)",
+            min_value=0.0,
+            max_value=1.0,
+            value=0.18,
+            step=0.01,
+        )
 
     if not reference_cohort.empty:
         tiered_cohort = assign_tiers_to_cohort(reference_cohort, medium_cut, high_cut)
-        tier_counts = tiered_cohort["tier"].value_counts().reindex(["High", "Medium", "Low"], fill_value=0)
+        tier_counts = (
+            tiered_cohort["tier"]
+            .value_counts()
+            .reindex(["High", "Medium", "Low"], fill_value=0)
+        )
         total_patients = int(len(tiered_cohort))
 
         c1, c2, c3 = st.columns(3)
-        c1.metric("High Tier", f"{tier_counts['High']:,}", f"{(tier_counts['High']/total_patients)*100:.1f}%")
-        c2.metric("Medium Tier", f"{tier_counts['Medium']:,}", f"{(tier_counts['Medium']/total_patients)*100:.1f}%")
-        c3.metric("Low Tier", f"{tier_counts['Low']:,}", f"{(tier_counts['Low']/total_patients)*100:.1f}%")
+        c1.metric(
+            "High Tier",
+            f"{tier_counts['High']:,}",
+            f"{(tier_counts['High']/total_patients)*100:.1f}%",
+        )
+        c2.metric(
+            "Medium Tier",
+            f"{tier_counts['Medium']:,}",
+            f"{(tier_counts['Medium']/total_patients)*100:.1f}%",
+        )
+        c3.metric(
+            "Low Tier",
+            f"{tier_counts['Low']:,}",
+            f"{(tier_counts['Low']/total_patients)*100:.1f}%",
+        )
 
-        ranked = tiered_cohort.sort_values("risk_score", ascending=False).reset_index(drop=True)
+        ranked = tiered_cohort.sort_values("risk_score", ascending=False).reset_index(
+            drop=True
+        )
         queue = ranked.head(int(capacity))
         total_readmissions = float(ranked["target"].sum())
         queue_readmissions = float(queue["target"].sum())
-        capture_rate = 0.0 if total_readmissions == 0 else 100.0 * queue_readmissions / total_readmissions
+        capture_rate = (
+            0.0
+            if total_readmissions == 0
+            else 100.0 * queue_readmissions / total_readmissions
+        )
 
         rank_desc = int(np.sum(reference_scores > risk)) + 1
         in_queue = rank_desc <= int(capacity)
@@ -423,7 +565,11 @@ if submitted:
         st.write("**ROI Results**")
         st.json(roi)
 
-        display_cols = [c for c in ["encounter_id", "patient_nbr", "risk_score", "tier", "target"] if c in queue.columns]
+        display_cols = [
+            c
+            for c in ["encounter_id", "patient_nbr", "risk_score", "tier", "target"]
+            if c in queue.columns
+        ]
         st.write("**Top Queue Preview**")
         queue_export = queue[display_cols].copy()
         st.dataframe(queue_export.head(20), width="stretch")
