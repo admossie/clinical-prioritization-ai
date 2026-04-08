@@ -38,3 +38,4 @@ include = ["*"]
 [tool.black]
 line-length = 88
 target-version = ["py39"]
+required-version = "24.3.0"
