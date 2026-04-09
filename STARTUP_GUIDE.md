@@ -7,6 +7,7 @@ AI Care Prioritization Engine is designed for early-stage healthcare analytics p
 ## Startup-ready highlights
 
 - Deployable Streamlit app for rapid stakeholder demos.
+- Clear result presentation with **estimated risk %, percentile rank, and operational priority**.
 - Reproducible Python packaging via `pyproject.toml`.
 - Developer tooling and test support with `requirements-dev.txt`.
 - Docker container support for cloud and on-premises pilots.
@@ -24,8 +25,14 @@ AI Care Prioritization Engine is designed for early-stage healthcare analytics p
 
 ```bash
 pip install -r requirements.txt
-streamlit run app/streamlit_app.py
+streamlit run app.py
 ```
+
+### Interpreting the demo output
+
+- **Estimated risk** is the model's predicted readmission probability.
+- **Relative percentile** shows how the patient compares with the scored reference population.
+- **Priority tier** is meant for operations and queue planning, not diagnosis.
 
 - Run tests:
 
