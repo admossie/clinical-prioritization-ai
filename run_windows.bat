@@ -8,4 +8,5 @@ if not exist models\best_model.joblib (
 	exit /b 1
 )
 
-%PYTHON_EXE% -m streamlit run app\streamlit_app.py
+echo Starting AI Care Prioritization Engine...
+%PYTHON_EXE% -m streamlit run app.py

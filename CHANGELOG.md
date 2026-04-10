@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+### Added
+- `DEPLOYMENT.md`, `.streamlit/config.toml`, and `packages.txt` for a smoother public demo deployment path.
+- A Streamlit smoke test to catch app-launch and prediction-flow regressions earlier.
+
 ### Changed
 - Improved Streamlit prediction wording to show **estimated risk as a percentage**, percentile-based priority context, and clearer operational guidance.
 - Updated GitHub-facing documentation to explain how to interpret `Estimated risk`, `Relative percentile`, and `Priority tier`.
