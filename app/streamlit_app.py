@@ -131,7 +131,8 @@ def render_sidebar() -> None:
         st.markdown("### Best for")
         st.write("Care coordination leaders, hospital ops teams, and pilot partners.")
         st.info(
-            "This tool supports prioritization decisions; it does not replace clinical judgment."
+            "This tool supports prioritization decisions; "
+            "it does not replace clinical judgment."
         )
 
 
@@ -150,7 +151,10 @@ def render_hero(reference_cohort: pd.DataFrame, reference_scores: np.ndarray) ->
         f"""
         <div class="hero-card">
             <h1>AI Care Prioritization Engine</h1>
-            <p>Capacity-aware readmission prioritization for care teams, pilots, and operational decision support.</p>
+            <p>
+                Capacity-aware readmission prioritization for care teams,
+                pilots, and operational decision support.
+            </p>
             <div class="pill-row">
                 <span class="pill">{mode_label}</span>
                 <span class="pill">{total_patients:,} reference patients</span>
@@ -209,11 +213,17 @@ def render_landing_section() -> None:
             """
             <div class="info-card">
                 <h4>Problem</h4>
-                <p>Readmission models often stop at scoring risk and do not help teams act under real staffing limits.</p>
+                <p>
+                    Readmission models often stop at scoring risk and do not help
+                    teams act under real staffing limits.
+                </p>
             </div>
             <div class="info-card">
                 <h4>Solution</h4>
-                <p>This app turns risk into an intervention queue, estimated savings, and workflow-ready prioritization.</p>
+                <p>
+                    This app turns risk into an intervention queue, estimated
+                    savings, and workflow-ready prioritization.
+                </p>
             </div>
             """,
             unsafe_allow_html=True,
@@ -536,7 +546,9 @@ patient_presets = {
         },
     },
     "Lower-risk stable discharge": {
-        "description": "Simpler case with limited prior utilization and fewer risk signals.",
+        "description": (
+            "Simpler case with limited prior utilization " "and fewer risk signals."
+        ),
         "values": {
             **default_inputs,
             "age": "[40-50)",
@@ -555,7 +567,10 @@ patient_presets = {
         },
     },
     "Chronic care follow-up": {
-        "description": "Moderate-to-high complexity patient needing proactive follow-up planning.",
+        "description": (
+            "Moderate-to-high complexity patient needing "
+            "proactive follow-up planning."
+        ),
         "values": {
             **default_inputs,
             "age": "[60-70)",
@@ -843,14 +858,17 @@ if prediction_result is not None:
     m3.metric("Relative percentile", f"{risk_percentile:.1f}%")
     m4.metric("High-priority cutoff", format_percent(high_cut))
 
-    st.markdown(
-        f"""
-        **How to read this result**
-        - **{format_percent(risk)} estimated risk** means the model predicts roughly this chance of readmission.
-        - **{risk_percentile:.1f}th percentile** means this patient scores higher than most patients in the reference cohort.
-        - **{tier} priority** is an operational queue label based on cohort thresholds (`Medium ≥ {format_percent(medium_cut)}`, `High ≥ {format_percent(high_cut)}`).
-        """
+    interpretation_md = (
+        "**How to read this result**\n"
+        f"- **{format_percent(risk)} estimated risk** means the model predicts "
+        "roughly this chance of readmission.\n"
+        f"- **{risk_percentile:.1f}th percentile** means this patient scores "
+        "higher than most patients in the reference cohort.\n"
+        f"- **{tier} priority** is an operational queue label based on cohort "
+        f"thresholds (`Medium ≥ {format_percent(medium_cut)}`, "
+        f"`High ≥ {format_percent(high_cut)}`)."
     )
+    st.markdown(interpretation_md)
 
     action_map = {
         "High": "Recommended action: same-day outreach and care coordination review.",
@@ -923,7 +941,8 @@ if prediction_result is not None:
                 st.info(f"Explainability preview is temporarily unavailable: {exc}")
     elif not docs_explainability_only:
         st.caption(
-            "Tip: enable `Include explainability details` if you want SHAP-based feature insights."
+            "Tip: enable `Include explainability details` "
+            "if you want SHAP-based feature insights."
         )
 
     if docs_explainability_only:
