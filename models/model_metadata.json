@@ -1,0 +1,9 @@
+{
+  "model_name": "clinical-readmission-prioritizer",
+  "version": "v1.0.5",
+  "artifact_source": "saved-artifacts",
+  "artifact_files": "best_model.joblib + preprocessor.joblib",
+  "training_data": "data/raw/diabetic_data.csv",
+  "deployment_entrypoint": "app.py",
+  "notes": "Tracked trained artifacts for reliable GitHub and Streamlit deployment"
+}

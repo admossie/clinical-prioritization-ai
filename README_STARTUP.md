@@ -16,6 +16,17 @@ AI Care Prioritization Engine is a clinical workflow platform prototype built to
 - Reproducible packaging with `pyproject.toml`.
 - Issue and PR templates for scalable collaboration.
 
+## Portfolio positioning
+
+Use this project summary for resumes, interviews, and portfolio descriptions:
+
+> Built and deployed a production-grade ML decision support system for clinical readmission prioritization using Streamlit, integrating risk prediction, capacity-aware triage, and ROI simulation.
+
+- Designed an interactive patient simulation interface with real-time inference
+- Implemented percentile-based prioritization and operational thresholds
+- Modeled business impact with workflow and ROI simulation outputs
+- Deployed publicly with CI validation and GitHub-based release workflows
+
 ## Get started
 
 1. Install dependencies:

@@ -1,5 +1,7 @@
+import json
 import sys
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 
 import joblib
@@ -20,6 +22,7 @@ st.set_page_config(
 ROOT = Path(__file__).resolve().parents[1]
 MODEL_PATH = ROOT / "models" / "best_model.joblib"
 PREPROC_PATH = ROOT / "models" / "preprocessor.joblib"
+MODEL_METADATA_PATH = ROOT / "models" / "model_metadata.json"
 REFERENCE_SCORES_PATH = ROOT / "outputs" / "tables" / "test_scored.csv"
 FALLBACK_DATA_PATHS = [
     ROOT / "data" / "raw" / "diabetic_data.csv",
@@ -129,7 +132,7 @@ def format_percent(value: float) -> str:
     return f"{value * 100:.1f}%"
 
 
-def render_sidebar() -> None:
+def render_sidebar(model_metadata: dict[str, str]) -> None:
     with st.sidebar:
         st.markdown("## Demo overview")
         st.caption(
@@ -142,6 +145,10 @@ def render_sidebar() -> None:
         )
         st.markdown("### Best for")
         st.write("Care coordination leaders, hospital ops teams, and pilot partners.")
+        st.markdown("### Model status")
+        st.caption(f"Version: {model_metadata.get('version', 'unversioned')}")
+        artifact_source = model_metadata.get("artifact_source", "unknown")
+        st.caption(f"Source: {artifact_source.replace('-', ' ').title()}")
         st.info(
             "This tool supports prioritization decisions; "
             "it does not replace clinical judgment."
@@ -403,6 +410,27 @@ def load_pipeline():
 
 
 @st.cache_data
+def load_model_metadata(path: str, use_saved_artifacts: bool) -> dict[str, str]:
+    metadata = {
+        "model_name": "clinical-readmission-prioritizer",
+        "version": "v1.0.5",
+        "artifact_source": (
+            "saved-artifacts" if use_saved_artifacts else "fallback-demo"
+        ),
+    }
+
+    metadata_path = Path(path)
+    if metadata_path.exists():
+        try:
+            loaded = json.loads(metadata_path.read_text(encoding="utf-8"))
+            metadata.update({key: str(value) for key, value in loaded.items()})
+        except Exception:
+            pass
+
+    return metadata
+
+
+@st.cache_data
 def load_reference_cohort(path: Path) -> pd.DataFrame:
     if not path.exists():
         return pd.DataFrame(columns=["risk_score", "target"])
@@ -476,6 +504,7 @@ def apply_missing_input_defaults(row: pd.DataFrame) -> pd.DataFrame:
 
 
 using_saved_artifacts = MODEL_PATH.exists() and PREPROC_PATH.exists()
+model_metadata = load_model_metadata(str(MODEL_METADATA_PATH), using_saved_artifacts)
 
 reference_cohort = load_reference_cohort(REFERENCE_SCORES_PATH)
 reference_scores = (
@@ -484,7 +513,7 @@ reference_scores = (
     else np.array([], dtype=float)
 )
 inject_custom_styles()
-render_sidebar()
+render_sidebar(model_metadata)
 render_hero(reference_cohort, reference_scores)
 st.success("Quick demo: choose a preset and click `Predict risk` below.")
 with st.expander("About this solution", expanded=False):
@@ -862,6 +891,9 @@ if submitted:
         "high_cut": high_cut,
         "show_explainability": show_explainability,
         "row_dict": row_dict,
+        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        "model_version": model_metadata.get("version", "unversioned"),
+        "artifact_source": model_metadata.get("artifact_source", "unknown"),
         "timing": {
             "preprocessor": t1 - t0,
             "model": t2 - t1,
@@ -919,6 +951,19 @@ if prediction_result is not None:
         "Low": "Recommended action: routine follow-up is likely sufficient.",
     }
     st.info(action_map[tier])
+    with st.expander("Prediction metadata", expanded=False):
+        st.json(
+            {
+                "generated_at": prediction_result.get("generated_at", "unknown"),
+                "model_version": prediction_result.get("model_version", "unversioned"),
+                "artifact_source": prediction_result.get("artifact_source", "unknown"),
+                "reference_mode": (
+                    "saved trained artifacts"
+                    if using_saved_artifacts
+                    else "fallback demo model"
+                ),
+            }
+        )
     st.caption(
         "This is a prioritization aid for demos and workflow planning, not a diagnosis."
     )
