@@ -54,6 +54,9 @@ coverage.xml
 
 # Data and model artifacts
 models/*.joblib
+!models/best_model.joblib
+!models/preprocessor.joblib
+!models/model_metadata.json
 outputs/
 !outputs/
 !outputs/figures/
