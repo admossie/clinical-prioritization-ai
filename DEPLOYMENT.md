@@ -15,6 +15,7 @@ This repository is ready to deploy using `app.py` as the main entrypoint.
 - `.streamlit/config.toml` for theme and hosted app defaults
 - `packages.txt` for system packages often needed by `lightgbm` / `xgboost`
 - `runtime.txt` to keep the hosted Python version aligned with CI and Docker
+- a fallback demo model path so the app can still render even if saved artifacts are missing
 
 ## Docker deployment
 
@@ -27,7 +28,8 @@ Then open `http://localhost:8501`.
 
 ## Troubleshooting
 
-- If the app says model artifacts are missing, regenerate them with:
+- If saved model artifacts are missing, the app now falls back to a lightweight demo model automatically.
+- To regenerate the full trained artifacts anyway, run:
   ```bash
   python -m src.train --data-path data/raw/diabetic_data.csv
   ```

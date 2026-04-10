@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - `DEPLOYMENT.md`, `.streamlit/config.toml`, and `packages.txt` for a smoother public demo deployment path.
 - A Streamlit smoke test to catch app-launch and prediction-flow regressions earlier.
+- A lightweight fallback demo-model path so the app still renders on clean checkouts without saved artifacts.
 
 ### Changed
 - Improved Streamlit prediction wording to show **estimated risk as a percentage**, percentile-based priority context, and clearer operational guidance.
