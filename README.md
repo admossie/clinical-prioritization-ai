@@ -38,7 +38,20 @@ Use `app.py` for the standard GitHub quickstart. It launches `app/streamlit_app.
 - `STARTUP_GUIDE.md` - product positioning and pilot-readiness checklist
 - `README_STARTUP.md` - investor/demo-friendly project overview
 - `CONTRIBUTING.md` - contributor and team workflow guidance
+- `DEPLOYMENT.md` - public demo deployment steps for Streamlit Community Cloud and Docker
 - `Dockerfile` - simple containerized app deployment
+
+## Public deployment readiness
+
+This repository is now set up for a public demo path with:
+
+- `app.py` as the standard deployment entrypoint
+- `.streamlit/config.toml` for a consistent hosted theme and server settings
+- `packages.txt` for system packages commonly needed on Streamlit Community Cloud
+- a lightweight fallback demo model when saved artifacts are unavailable
+- a Streamlit smoke test to catch UI-launch regressions in CI
+
+For deployment steps, see `DEPLOYMENT.md`.
 
 ## Demo workflow
 

@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import shap
 import streamlit as st
+from sklearn.linear_model import LogisticRegression
 
 st.set_page_config(
     page_title="AI Care Prioritization Engine",
@@ -20,8 +21,19 @@ ROOT = Path(__file__).resolve().parents[1]
 MODEL_PATH = ROOT / "models" / "best_model.joblib"
 PREPROC_PATH = ROOT / "models" / "preprocessor.joblib"
 REFERENCE_SCORES_PATH = ROOT / "outputs" / "tables" / "test_scored.csv"
+FALLBACK_DATA_PATHS = [
+    ROOT / "data" / "raw" / "diabetic_data.csv",
+    ROOT / "data" / "raw" / "sample_diabetic_data.csv",
+]
+FALLBACK_TRAIN_ROWS = 250
 sys.path.append(str(ROOT))
-from src.preprocess import transform_with_feature_names  # noqa: E402
+from src.preprocess import (  # noqa: E402
+    build_preprocessor,
+    load_and_prepare_data,
+    transform_with_feature_names,
+)
+from src.schemas import TARGET_COLUMN  # noqa: E402
+from src.temporal_features import add_temporal_features  # noqa: E402
 from src.workflow_simulation import hospital_roi  # noqa: E402
 
 
@@ -356,11 +368,38 @@ CATEGORICAL_NONE_DEFAULTS = {
 }
 
 
+def fit_fallback_pipeline():
+    data_path = next((path for path in FALLBACK_DATA_PATHS if path.exists()), None)
+    if data_path is None:
+        raise FileNotFoundError(
+            "No dataset is available to build the fallback demo model."
+        )
+
+    df = add_temporal_features(load_and_prepare_data(str(data_path)))
+    df = df.head(FALLBACK_TRAIN_ROWS).copy()
+
+    preprocessor = build_preprocessor(df)
+    x = df.drop(columns=[TARGET_COLUMN])
+    y = df[TARGET_COLUMN]
+    xt = preprocessor.fit_transform(x)
+
+    model = LogisticRegression(
+        max_iter=500,
+        class_weight="balanced",
+        solver="liblinear",
+    )
+    model.fit(xt, y)
+    return model, preprocessor
+
+
 @st.cache_resource
 def load_pipeline():
-    model = joblib.load(MODEL_PATH)
-    preprocessor = joblib.load(PREPROC_PATH)
-    return model, preprocessor
+    if MODEL_PATH.exists() and PREPROC_PATH.exists():
+        model = joblib.load(MODEL_PATH)
+        preprocessor = joblib.load(PREPROC_PATH)
+        return model, preprocessor
+
+    return fit_fallback_pipeline()
 
 
 @st.cache_data
@@ -436,9 +475,7 @@ def apply_missing_input_defaults(row: pd.DataFrame) -> pd.DataFrame:
     return row
 
 
-if not MODEL_PATH.exists() or not PREPROC_PATH.exists():
-    st.warning("Train the model first.")
-    st.stop()
+using_saved_artifacts = MODEL_PATH.exists() and PREPROC_PATH.exists()
 
 reference_cohort = load_reference_cohort(REFERENCE_SCORES_PATH)
 reference_scores = (
@@ -457,6 +494,12 @@ with st.expander("About this solution", expanded=False):
 if reference_scores.size == 0:
     st.warning(
         "Reference risk cohort not found. Falling back to default percentile cutoffs."
+    )
+
+if not using_saved_artifacts:
+    st.warning(
+        "Saved model artifacts were not found, so the app is using a lightweight "
+        "fallback demo model built from the included dataset."
     )
 
 if "model" not in st.session_state or "preprocessor" not in st.session_state:

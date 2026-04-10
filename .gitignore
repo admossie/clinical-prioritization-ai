@@ -64,7 +64,8 @@ catboost_info/
 src/catboost_info/
 
 # Streamlit
-.streamlit/
+.streamlit/*
+!.streamlit/config.toml
 
 # OS files
 .DS_Store
