@@ -6,6 +6,7 @@ AI Care Prioritization Engine is a clinical workflow platform prototype built to
 
 - Predict which patients are at highest risk of hospital readmission.
 - Help care coordinators allocate follow-up resources to the right patients.
+- Show results as an easy-to-understand **risk percentage, cohort percentile, and priority tier**.
 - Provide a demo-ready interface using Streamlit for rapid stakeholder review.
 
 ## Startup-ready capabilities
@@ -23,7 +24,7 @@ AI Care Prioritization Engine is a clinical workflow platform prototype built to
    ```
 2. Launch the demo app:
    ```bash
-   streamlit run app/streamlit_app.py
+   streamlit run app.py
    ```
 3. Run validation tests:
    ```bash

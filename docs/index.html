@@ -272,7 +272,7 @@
     <div class="hero-inner">
       <div class="eyebrow">Clinical Decision Support · ML Operations</div>
       <h1>Clinical Prioritization AI</h1>
-      <p>Capacity-aware hospital readmission prioritization with calibrated machine learning, fairness analysis, workflow simulation, explainability, and a Streamlit demo.</p>
+      <p>Capacity-aware hospital readmission prioritization with calibrated machine learning, fairness analysis, workflow simulation, explainability, and a Streamlit demo with clear percentage-based risk interpretation.</p>
       <div class="hero-actions">
         <a class="button button-primary" href="https://github.com/admossie/clinical-prioritization-ai">View Repository</a>
         <a class="button button-secondary" href="https://github.com/admossie/clinical-prioritization-ai/releases/latest">Latest release</a>
@@ -286,7 +286,7 @@
       <div class="grid two-up">
         <div class="card">
           <h2>From risk scores to actionable queues</h2>
-          <p class="lead">This project turns readmission prediction into operational prioritization: who to target, under what capacity limit, with what expected return.</p>
+          <p class="lead">This project turns readmission prediction into operational prioritization: who to target, under what capacity limit, with what expected return. The app explains each result as an estimated risk %, cohort percentile, and operational priority tier.</p>
           <div class="stats">
             <div class="stat">
               <div class="stat-label">ROC-AUC</div>
@@ -335,6 +335,7 @@
             <li>Workflow simulation and ROI estimation</li>
             <li>External validation pipeline</li>
             <li>Interactive Streamlit app with queue export</li>
+            <li>Interpretable prediction output for GitHub demos and stakeholder walkthroughs</li>
           </ul>
         </div>
 
@@ -344,7 +345,7 @@
             <li>Create a virtual environment and install dependencies from `requirements.txt`</li>
             <li>Train with `python -m src.train --data-path data/raw/diabetic_data.csv`</li>
             <li>Evaluate with `python -m src.evaluate --data-path data/raw/diabetic_data.csv`</li>
-            <li>Launch the app with `streamlit run app/streamlit_app.py`</li>
+            <li>Launch the app with `streamlit run app.py`</li>
           </ul>
         </div>
       </div>

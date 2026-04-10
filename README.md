@@ -28,10 +28,10 @@ python -m venv .venv
 pip install -r requirements.txt
 python -m src.train --data-path data/raw/diabetic_data.csv
 python -m src.evaluate --data-path data/raw/diabetic_data.csv
-streamlit run app/streamlit_app.py
+streamlit run app.py
 ```
 
-`app.py` is a thin wrapper. `app/streamlit_app.py` is the canonical app entrypoint.
+Use `app.py` for the standard GitHub quickstart. It launches `app/streamlit_app.py` internally.
 
 ## Startup resources
 
@@ -48,6 +48,17 @@ streamlit run app/streamlit_app.py
 4. Simulate a top-N queue using operational assumptions.
 5. Launch the Streamlit demo.
 6. Review the queue, explainability output, and download the current queue as CSV.
+
+## How to interpret app results
+
+When the Streamlit demo returns a prediction, it now presents the result in a GitHub-friendly, stakeholder-readable format:
+
+- **Estimated risk** is shown as a percentage, such as `26.0%`
+- **Relative percentile** shows where the patient ranks versus the reference cohort
+- **Priority tier** (`High`, `Medium`, `Low`) is an operational queue label based on cohort thresholds
+- **Recommended action** explains how a care team might respond under limited capacity
+
+This makes the demo easier to understand for hospital partners, startup conversations, and GitHub visitors who are reviewing the project quickly.
 
 ## Key outputs
 
@@ -97,7 +108,7 @@ python -m src.workflow_simulation --scored-data outputs/tables/test_scored.csv
 ### Launch the app
 
 ```bash
-streamlit run app/streamlit_app.py
+streamlit run app.py
 ```
 
 ### Use the triage dashboard
