@@ -14,7 +14,7 @@ keywords = ["healthcare", "readmission", "care prioritization", "machine learnin
 dependencies = [
     "pandas",
     "numpy",
-    "scikit-learn",
+    "scikit-learn==1.6.1",
     "streamlit",
     "catboost",
     "xgboost",

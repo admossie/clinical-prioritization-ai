@@ -402,11 +402,15 @@ def fit_fallback_pipeline():
 @st.cache_resource
 def load_pipeline():
     if MODEL_PATH.exists() and PREPROC_PATH.exists():
-        model = joblib.load(MODEL_PATH)
-        preprocessor = joblib.load(PREPROC_PATH)
-        return model, preprocessor
+        try:
+            model = joblib.load(MODEL_PATH)
+            preprocessor = joblib.load(PREPROC_PATH)
+            return model, preprocessor, "saved-artifacts"
+        except Exception:
+            pass
 
-    return fit_fallback_pipeline()
+    model, preprocessor = fit_fallback_pipeline()
+    return model, preprocessor, "fallback-demo"
 
 
 @st.cache_data
@@ -503,7 +507,20 @@ def apply_missing_input_defaults(row: pd.DataFrame) -> pd.DataFrame:
     return row
 
 
-using_saved_artifacts = MODEL_PATH.exists() and PREPROC_PATH.exists()
+artifacts_present = MODEL_PATH.exists() and PREPROC_PATH.exists()
+
+if (
+    "model" not in st.session_state
+    or "preprocessor" not in st.session_state
+    or "pipeline_source" not in st.session_state
+):
+    with st.spinner("Loading model artifacts..."):
+        cached_model, cached_preprocessor, pipeline_source = load_pipeline()
+        st.session_state["model"] = cached_model
+        st.session_state["preprocessor"] = cached_preprocessor
+        st.session_state["pipeline_source"] = pipeline_source
+
+using_saved_artifacts = st.session_state.get("pipeline_source") == "saved-artifacts"
 model_metadata = load_model_metadata(str(MODEL_METADATA_PATH), using_saved_artifacts)
 
 reference_cohort = load_reference_cohort(REFERENCE_SCORES_PATH)
@@ -525,18 +542,16 @@ if reference_scores.size == 0:
         "Reference risk cohort not found. Falling back to default percentile cutoffs."
     )
 
-if not using_saved_artifacts:
+if not artifacts_present:
     st.warning(
         "Saved model artifacts were not found, so the app is using a lightweight "
         "fallback demo model built from the included dataset."
     )
-
-if "model" not in st.session_state or "preprocessor" not in st.session_state:
-    with st.spinner("Loading model artifacts..."):
-        cached_model, cached_preprocessor = load_pipeline()
-        st.session_state["model"] = cached_model
-        st.session_state["preprocessor"] = cached_preprocessor
-
+elif not using_saved_artifacts:
+    st.warning(
+        "Saved artifacts were present but could not be loaded in this environment, "
+        "so the app switched to the fallback demo model."
+    )
 
 model = st.session_state["model"]
 preprocessor = st.session_state["preprocessor"]
