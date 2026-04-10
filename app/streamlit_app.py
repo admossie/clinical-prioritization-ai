@@ -120,7 +120,9 @@ def format_percent(value: float) -> str:
 def render_sidebar() -> None:
     with st.sidebar:
         st.markdown("## Demo overview")
-        st.caption("A startup-style clinical operations demo for readmission prioritization.")
+        st.caption(
+            "A startup-style clinical operations demo for readmission prioritization."
+        )
         st.markdown(
             "- Predict readmission risk\n"
             "- Prioritize limited care-team capacity\n"
@@ -140,7 +142,9 @@ def render_hero(reference_cohort: pd.DataFrame, reference_scores: np.ndarray) ->
         if not reference_cohort.empty and "target" in reference_cohort.columns
         else 0
     )
-    mode_label = "Live reference mode" if reference_scores.size else "Fallback demo mode"
+    mode_label = (
+        "Live reference mode" if reference_scores.size else "Fallback demo mode"
+    )
 
     st.markdown(
         f"""
@@ -186,7 +190,9 @@ def render_startup_highlights() -> None:
     c2.markdown("### ROI visibility")
     c2.caption("Show expected savings, program cost, and operational tradeoffs.")
     c3.markdown("### Pilot-ready")
-    c3.caption("Built for demos with hospital operations, clinical leadership, and partners.")
+    c3.caption(
+        "Built for demos with hospital operations, clinical leadership, and partners."
+    )
 
 
 def render_landing_section() -> None:
@@ -686,24 +692,39 @@ else:
                     int(preset_values["discharge_disposition_id"]),
                 )
                 admission_source_id = st.slider(
-                    "Admission source ID", 1, 25, int(preset_values["admission_source_id"])
+                    "Admission source ID",
+                    1,
+                    25,
+                    int(preset_values["admission_source_id"]),
                 )
 
             st.markdown("### Prior history")
             h1, h2, h3 = st.columns(3)
             with h1:
                 prior_inpatient = st.slider(
-                    "Prior inpatient total", 0, 20, int(preset_values["prior_inpatient"])
+                    "Prior inpatient total",
+                    0,
+                    20,
+                    int(preset_values["prior_inpatient"]),
                 )
                 prior_outpatient = st.slider(
-                    "Prior outpatient total", 0, 20, int(preset_values["prior_outpatient"])
+                    "Prior outpatient total",
+                    0,
+                    20,
+                    int(preset_values["prior_outpatient"]),
                 )
             with h2:
                 prior_emergency = st.slider(
-                    "Prior emergency total", 0, 20, int(preset_values["prior_emergency"])
+                    "Prior emergency total",
+                    0,
+                    20,
+                    int(preset_values["prior_emergency"]),
                 )
                 prior_positive_count = st.slider(
-                    "Prior readmissions", 0, 10, int(preset_values["prior_positive_count"])
+                    "Prior readmissions",
+                    0,
+                    10,
+                    int(preset_values["prior_positive_count"]),
                 )
             with h3:
                 diag_delta = st.slider(
