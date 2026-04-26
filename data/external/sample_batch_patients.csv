@@ -1,0 +1,4 @@
+age,gender,race,time_in_hospital,num_lab_procedures,num_medications,number_diagnoses,number_outpatient,number_emergency,number_inpatient,prior_inpatient,prior_outpatient,prior_emergency,prior_positive_count,diag_delta,med_delta
+[70-80),Female,Caucasian,8,60,20,11,2,1,2,3,2,1,1,2,4
+[60-70),Female,Hispanic,5,48,15,9,1,1,1,1,2,1,1,1,2
+[40-50),Male,Other,2,20,6,4,0,0,0,0,0,0,0,-1,-2

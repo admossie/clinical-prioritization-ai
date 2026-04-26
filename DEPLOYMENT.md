@@ -16,8 +16,11 @@ This repository is ready to deploy using `app.py` as the main entrypoint.
 - `packages.txt` for system packages often needed by `lightgbm` / `xgboost`
 - `runtime.txt` to keep the hosted Python version aligned with CI and Docker
 - a fallback demo model path so the app can still render even if saved artifacts are missing
+- a built-in Batch Queue Scoring section for CSV upload and prioritized export
 
 ## Docker deployment
+
+### Streamlit only
 
 ```bash
 docker build -t ai-care-prioritization-engine .
@@ -25,6 +28,17 @@ docker run -p 8501:8501 ai-care-prioritization-engine
 ```
 
 Then open `http://localhost:8501`.
+
+### Streamlit + FastAPI together
+
+```bash
+docker compose up --build
+```
+
+This launches:
+- `http://localhost:8501` for the Streamlit app
+- `http://localhost:8000/health` for API health
+- `http://localhost:8000/docs` for interactive API docs
 
 ## Troubleshooting
 

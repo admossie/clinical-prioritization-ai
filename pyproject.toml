@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ai-care-prioritization-engine"
-version = "1.0.2"
+version = "1.0.6"
 description = "Machine learning engine for patient prioritization and readmission risk."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -16,6 +16,9 @@ dependencies = [
     "numpy",
     "scikit-learn==1.6.1",
     "streamlit",
+    "fastapi",
+    "uvicorn",
+    "httpx",
     "catboost",
     "xgboost",
     "matplotlib",
@@ -34,6 +37,10 @@ include-package-data = true
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
 
 [tool.black]
 line-length = 88

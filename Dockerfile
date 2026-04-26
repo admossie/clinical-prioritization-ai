@@ -14,5 +14,5 @@ COPY . .
 
 ENV STREAMLIT_SERVER_HEADLESS=true
 
-EXPOSE 8501
+EXPOSE 8501 8000
 CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]

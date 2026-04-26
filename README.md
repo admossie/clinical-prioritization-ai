@@ -1,9 +1,25 @@
-# Operationalizing Machine Learning for Clinical Decision Support: A Capacity-Aware Framework for Hospital Readmission Prioritization
+# AI Care Prioritization Engine
+
+> Capacity-aware clinical decision support for hospital readmission prioritization, workflow simulation, and demo-ready triage operations.
 
 [![Release](https://img.shields.io/github/v/release/admossie/clinical-prioritization-ai)](https://github.com/admossie/clinical-prioritization-ai/releases/latest)
+[![CI](https://img.shields.io/github/actions/workflow/status/admossie/clinical-prioritization-ai/ci.yml?label=CI)](https://github.com/admossie/clinical-prioritization-ai/actions/workflows/ci.yml)
+[![Lint](https://img.shields.io/github/actions/workflow/status/admossie/clinical-prioritization-ai/lint.yml?label=Lint)](https://github.com/admossie/clinical-prioritization-ai/actions/workflows/lint.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](pyproject.toml)
 
-Capacity-aware hospital readmission prioritization with calibrated machine learning, workflow simulation, fairness analysis, and an interactive Streamlit demo.
+This repository packages a professional, portfolio-ready machine learning workflow for **readmission risk prediction**, **capacity-aware prioritization**, and **operational triage simulation** through both a `Streamlit` interface and a lightweight `FastAPI` layer.
+
+## At a glance
+
+| Area | Details |
+| --- | --- |
+| Primary use case | Prioritize high-risk discharges under limited care-team capacity |
+| User interface | `Streamlit` demo in `app.py` |
+| API layer | `FastAPI` endpoints: `/health`, `/predict`, `/batch_predict` |
+| Deployment paths | Local Python, Docker, and `docker compose` |
+| Validation | GitHub Actions CI + lint + smoke tests |
+| Best for | Portfolio demos, startup-style pilots, and applied ML case studies |
 
 ## Why this project exists
 
@@ -18,7 +34,7 @@ This repository packages that full workflow into a reproducible research project
 - Cost-sensitive thresholding and queue-based prioritization
 - External validation pipeline
 - Workflow simulation for operational planning
-- Streamlit app for live prediction, explainability, and queue export
+- Streamlit app for live prediction, explainability, queue export, and CSV batch scoring
 
 ## Quickstart
 
@@ -33,13 +49,15 @@ streamlit run app.py
 
 Use `app.py` for the standard GitHub quickstart. It launches `app/streamlit_app.py` internally.
 
-## Startup resources
+## Repository quick links
 
+- `README_STARTUP.md` - investor/demo-friendly overview
 - `STARTUP_GUIDE.md` - product positioning and pilot-readiness checklist
-- `README_STARTUP.md` - investor/demo-friendly project overview
-- `CONTRIBUTING.md` - contributor and team workflow guidance
-- `DEPLOYMENT.md` - public demo deployment steps for Streamlit Community Cloud and Docker
-- `Dockerfile` - simple containerized app deployment
+- `DEPLOYMENT.md` - public demo deployment and hosting steps
+- `CONTRIBUTING.md` - contributor workflow and local development guide
+- `CHANGELOG.md` - release-facing summary of notable changes
+- `SECURITY.md` - responsible disclosure guidance
+- `SUPPORT.md` - where to ask for help and how to navigate the repo
 
 ## Public deployment readiness
 
@@ -125,13 +143,40 @@ python -m src.workflow_simulation --scored-data outputs/tables/test_scored.csv
 streamlit run app.py
 ```
 
+### Run the optional inference API
+
+```bash
+python -m uvicorn api.main:app --host 0.0.0.0 --port 8000
+```
+
+If `CARE_API_URL` points to the running service, the Streamlit app will score patients through the API and automatically fall back to local in-app inference if the endpoint is unavailable.
+
+### Launch Streamlit + API together with Docker Compose
+
+```bash
+docker compose up --build
+```
+
+This starts:
+- `http://localhost:8501` → Streamlit demo
+- `http://localhost:8000/docs` → FastAPI docs
+
+### Batch prediction API example
+
+```bash
+curl -X POST http://localhost:8000/batch_predict \
+  -H "Content-Type: application/json" \
+  -d '{"patients":[{"age":"[70-80)","gender":"Female","race":"Caucasian"},{"age":"[40-50)","gender":"Male","race":"Other"}]}'
+```
+
 ### Use the triage dashboard
 
 - Generate an individual patient risk prediction
 - Review percentile-based risk tier assignment
 - Adjust queue capacity and intervention assumptions
 - Inspect ROI estimates and queue capture
-- Export the current active queue with the in-app CSV button
+- Upload `data/external/sample_batch_patients.csv` in **Batch Queue Scoring** to rank a patient list
+- Export both the current queue and scored batch results as CSV
 
 ## Decision-theoretic formulation
 
@@ -196,4 +241,6 @@ If you use this project in research, please cite:
 
 Abebaw Mossie  
 abebawdebas7@gmail.com
+
+For GitHub usage questions, setup help, or navigation guidance, start with `SUPPORT.md`.
 

@@ -11,6 +11,10 @@ def test_streamlit_app_renders_and_predicts() -> None:
 
     assert not at.exception
     assert any(button.label == "Predict risk" for button in at.button)
+    assert any(
+        "Batch Queue Scoring" in getattr(markdown, "value", "")
+        for markdown in at.markdown
+    )
 
     predict_button = next(
         button for button in at.button if button.label == "Predict risk"

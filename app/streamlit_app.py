@@ -1,16 +1,17 @@
 import json
+import os
 import sys
 import time
-from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any, Optional
+from urllib import error as urllib_error
+from urllib import request as urllib_request
 
-import joblib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import shap
 import streamlit as st
-from sklearn.linear_model import LogisticRegression
 
 st.set_page_config(
     page_title="AI Care Prioritization Engine",
@@ -20,23 +21,22 @@ st.set_page_config(
 )
 
 ROOT = Path(__file__).resolve().parents[1]
-MODEL_PATH = ROOT / "models" / "best_model.joblib"
-PREPROC_PATH = ROOT / "models" / "preprocessor.joblib"
-MODEL_METADATA_PATH = ROOT / "models" / "model_metadata.json"
-REFERENCE_SCORES_PATH = ROOT / "outputs" / "tables" / "test_scored.csv"
-FALLBACK_DATA_PATHS = [
-    ROOT / "data" / "raw" / "diabetic_data.csv",
-    ROOT / "data" / "raw" / "sample_diabetic_data.csv",
-]
-FALLBACK_TRAIN_ROWS = 250
 sys.path.append(str(ROOT))
-from src.preprocess import (  # noqa: E402
-    build_preprocessor,
-    load_and_prepare_data,
-    transform_with_feature_names,
+from src.inference import (  # noqa: E402
+    DEFAULT_DEMO_INPUTS,
+    MODEL_METADATA_PATH,
+    MODEL_PATH,
+    PREPROC_PATH,
+    REFERENCE_SCORES_PATH,
+    REQUIRED_INPUT_COLUMNS,
+    apply_missing_input_defaults,
+    load_model_metadata,
+    load_pipeline,
+    load_reference_cohort,
+    score_batch_payloads,
+    score_patient_payload,
 )
-from src.schemas import TARGET_COLUMN  # noqa: E402
-from src.temporal_features import add_temporal_features  # noqa: E402
+from src.preprocess import transform_with_feature_names  # noqa: E402
 from src.workflow_simulation import hospital_roi  # noqa: E402
 
 
@@ -132,7 +132,9 @@ def format_percent(value: float) -> str:
     return f"{value * 100:.1f}%"
 
 
-def render_sidebar(model_metadata: dict[str, str]) -> None:
+def render_sidebar(
+    model_metadata: dict[str, str], api_health: Optional[dict[str, str]]
+) -> None:
     with st.sidebar:
         st.markdown("## Demo overview")
         st.caption(
@@ -149,6 +151,12 @@ def render_sidebar(model_metadata: dict[str, str]) -> None:
         st.caption(f"Version: {model_metadata.get('version', 'unversioned')}")
         artifact_source = model_metadata.get("artifact_source", "unknown")
         st.caption(f"Source: {artifact_source.replace('-', ' ').title()}")
+        st.markdown("### Inference layer")
+        if api_health:
+            st.caption("Mode: FastAPI service")
+            st.caption(f"API status: {api_health.get('status', 'ok')}")
+        else:
+            st.caption("Mode: Local in-app scoring")
         st.info(
             "This tool supports prioritization decisions; "
             "it does not replace clinical judgment."
@@ -270,210 +278,120 @@ def safe_index(options: list[str], value: str) -> int:
 # --------------------------------------------------
 # CONFIG
 # --------------------------------------------------
-THRESHOLD_CACHE_PATH = "outputs/derived_thresholds.pkl"
 DEFAULT_CAPACITY = 200
-USE_CAPACITY_OVERRIDE = True
-
-REQUIRED_INPUT_COLUMNS = [
-    "encounter_id",
-    "patient_nbr",
-    "race",
-    "gender",
-    "age",
-    "weight",
-    "admission_type_id",
-    "discharge_disposition_id",
-    "admission_source_id",
-    "time_in_hospital",
-    "payer_code",
-    "medical_specialty",
-    "num_lab_procedures",
-    "num_procedures",
-    "num_medications",
-    "number_outpatient",
-    "number_emergency",
-    "number_inpatient",
-    "diag_1",
-    "diag_2",
-    "diag_3",
-    "number_diagnoses",
-    "max_glu_serum",
-    "A1Cresult",
-    "metformin",
-    "repaglinide",
-    "nateglinide",
-    "chlorpropamide",
-    "glimepiride",
-    "acetohexamide",
-    "glipizide",
-    "glyburide",
-    "tolbutamide",
-    "pioglitazone",
-    "rosiglitazone",
-    "acarbose",
-    "miglitol",
-    "troglitazone",
-    "tolazamide",
-    "examide",
-    "citoglipton",
-    "insulin",
-    "glyburide-metformin",
-    "glipizide-metformin",
-    "glimepiride-pioglitazone",
-    "metformin-rosiglitazone",
-    "metformin-pioglitazone",
-    "change",
-    "diabetesMed",
-    "encounter_number",
-    "prior_encounters",
-    "prior_number_inpatient_sum",
-    "prior_number_inpatient_mean",
-    "prior_number_outpatient_sum",
-    "prior_number_outpatient_mean",
-    "prior_number_emergency_sum",
-    "prior_number_emergency_mean",
-    "prior_total_visits",
-    "diag_delta",
-    "med_delta",
-    "prior_positive_count",
-    "ever_prior_positive",
-]
-
-CATEGORICAL_NONE_DEFAULTS = {
-    "payer_code",
-    "medical_specialty",
-    "diag_1",
-    "diag_2",
-    "diag_3",
-    "max_glu_serum",
-    "A1Cresult",
-    "metformin",
-    "repaglinide",
-    "nateglinide",
-    "chlorpropamide",
-    "glimepiride",
-    "acetohexamide",
-    "glipizide",
-    "glyburide",
-    "tolbutamide",
-    "pioglitazone",
-    "rosiglitazone",
-    "acarbose",
-    "miglitol",
-    "troglitazone",
-    "tolazamide",
-    "examide",
-    "citoglipton",
-    "insulin",
-    "glyburide-metformin",
-    "glipizide-metformin",
-    "glimepiride-pioglitazone",
-    "metformin-rosiglitazone",
-    "metformin-pioglitazone",
-    "change",
-    "diabetesMed",
-}
+API_BASE_URL = (
+    os.environ.get("CARE_API_URL", "http://127.0.0.1:8000").strip().rstrip("/")
+)
 
 
-def fit_fallback_pipeline():
-    data_path = next((path for path in FALLBACK_DATA_PATHS if path.exists()), None)
-    if data_path is None:
-        raise FileNotFoundError(
-            "No dataset is available to build the fallback demo model."
+@st.cache_data(ttl=30, show_spinner=False)
+def get_api_health(base_url: str) -> Optional[dict[str, str]]:
+    if not base_url:
+        return None
+
+    try:
+        with urllib_request.urlopen(f"{base_url}/health", timeout=0.4) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except (urllib_error.URLError, OSError, ValueError):
+        return None
+
+    if payload.get("status") != "ok":
+        return None
+
+    return {key: str(value) for key, value in payload.items()}
+
+
+def score_patient_with_optional_api(payload: dict[str, Any]) -> dict[str, Any]:
+    api_health = get_api_health(API_BASE_URL)
+    if api_health:
+        request = urllib_request.Request(
+            f"{API_BASE_URL}/predict",
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
         )
+        try:
+            with urllib_request.urlopen(request, timeout=1.5) as response:
+                result = json.loads(response.read().decode("utf-8"))
+            result["inference_mode"] = "api"
+            result["api_base_url"] = API_BASE_URL
+            return result
+        except (urllib_error.URLError, OSError, ValueError):
+            pass
 
-    df = add_temporal_features(load_and_prepare_data(str(data_path)))
-    df = df.head(FALLBACK_TRAIN_ROWS).copy()
+    result = score_patient_payload(payload)
+    result["inference_mode"] = "local"
+    result["api_base_url"] = None
+    return result
 
-    preprocessor = build_preprocessor(df)
-    x = df.drop(columns=[TARGET_COLUMN])
-    y = df[TARGET_COLUMN]
-    xt = preprocessor.fit_transform(x)
 
-    model = LogisticRegression(
-        max_iter=500,
-        class_weight="balanced",
-        solver="liblinear",
+def score_batch_with_optional_api(
+    payloads: list[dict[str, Any]],
+) -> dict[str, Any]:
+    api_health = get_api_health(API_BASE_URL)
+    if api_health:
+        request = urllib_request.Request(
+            f"{API_BASE_URL}/batch_predict",
+            data=json.dumps({"patients": payloads}).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urllib_request.urlopen(request, timeout=3.0) as response:
+                result = json.loads(response.read().decode("utf-8"))
+            result["inference_mode"] = "api"
+            result["api_base_url"] = API_BASE_URL
+            return result
+        except (urllib_error.URLError, OSError, ValueError):
+            pass
+
+    result = score_batch_payloads(payloads)
+    result["inference_mode"] = "local"
+    result["api_base_url"] = None
+    return result
+
+
+def build_batch_template_dataframe() -> pd.DataFrame:
+    return pd.DataFrame(
+        [
+            {
+                "age": "[70-80)",
+                "gender": "Female",
+                "race": "Caucasian",
+                "time_in_hospital": 8,
+                "num_lab_procedures": 60,
+                "num_medications": 20,
+                "number_diagnoses": 11,
+                "number_outpatient": 2,
+                "number_emergency": 1,
+                "number_inpatient": 2,
+                "prior_inpatient": 3,
+                "prior_outpatient": 2,
+                "prior_emergency": 1,
+                "prior_positive_count": 1,
+                "diag_delta": 2,
+                "med_delta": 4,
+            },
+            {
+                "age": "[40-50)",
+                "gender": "Male",
+                "race": "Other",
+                "time_in_hospital": 2,
+                "num_lab_procedures": 20,
+                "num_medications": 6,
+                "number_diagnoses": 4,
+                "number_outpatient": 0,
+                "number_emergency": 0,
+                "number_inpatient": 0,
+                "prior_inpatient": 0,
+                "prior_outpatient": 0,
+                "prior_emergency": 0,
+                "prior_positive_count": 0,
+                "diag_delta": -1,
+                "med_delta": -2,
+            },
+        ]
     )
-    model.fit(xt, y)
-    return model, preprocessor
-
-
-@st.cache_resource
-def load_pipeline():
-    if MODEL_PATH.exists() and PREPROC_PATH.exists():
-        try:
-            model = joblib.load(MODEL_PATH)
-            preprocessor = joblib.load(PREPROC_PATH)
-            return model, preprocessor, "saved-artifacts"
-        except Exception:
-            pass
-
-    model, preprocessor = fit_fallback_pipeline()
-    return model, preprocessor, "fallback-demo"
-
-
-@st.cache_data
-def load_model_metadata(path: str, use_saved_artifacts: bool) -> dict[str, str]:
-    metadata = {
-        "model_name": "clinical-readmission-prioritizer",
-        "version": "v1.0.5",
-        "artifact_source": (
-            "saved-artifacts" if use_saved_artifacts else "fallback-demo"
-        ),
-    }
-
-    metadata_path = Path(path)
-    if metadata_path.exists():
-        try:
-            loaded = json.loads(metadata_path.read_text(encoding="utf-8"))
-            metadata.update({key: str(value) for key, value in loaded.items()})
-        except Exception:
-            pass
-
-    return metadata
-
-
-@st.cache_data
-def load_reference_cohort(path: Path) -> pd.DataFrame:
-    if not path.exists():
-        return pd.DataFrame(columns=["risk_score", "target"])
-
-    candidate_cols = {"encounter_id", "patient_nbr", "risk_score", "target"}
-    cohort = pd.read_csv(path, usecols=lambda c: c in candidate_cols, low_memory=False)
-    cohort["risk_score"] = pd.to_numeric(cohort.get("risk_score"), errors="coerce")
-    if "target" in cohort.columns:
-        target_series = pd.Series(
-            pd.to_numeric(cohort["target"], errors="coerce"), index=cohort.index
-        )
-        cohort["target"] = target_series.fillna(0)
-    else:
-        cohort["target"] = 0.0
-    return cohort.dropna(subset=["risk_score"]).reset_index(drop=True)
-
-
-def get_percentile_thresholds(
-    reference_scores: np.ndarray, medium_pct: float = 70.0, high_pct: float = 90.0
-):
-    if reference_scores.size == 0:
-        return 0.12, 0.20
-    medium_cut = float(np.percentile(reference_scores, medium_pct))
-    high_cut = float(np.percentile(reference_scores, high_pct))
-    return medium_cut, high_cut
-
-
-def assign_percentile_tier(risk: float, medium_cut: float, high_cut: float) -> str:
-    if risk >= high_cut:
-        return "High"
-    if risk >= medium_cut:
-        return "Medium"
-    return "Low"
-
-
-def get_risk_percentile(risk: float, reference_scores: np.ndarray) -> float:
-    if reference_scores.size == 0:
-        return 100.0
-    return float((reference_scores < risk).mean() * 100.0)
 
 
 def assign_tiers_to_cohort(
@@ -486,25 +404,6 @@ def assign_tiers_to_cohort(
         np.where(tiered["risk_score"] >= medium_cut, "Medium", "Low"),
     )
     return tiered
-
-
-def apply_missing_input_defaults(row: pd.DataFrame) -> pd.DataFrame:
-    for col in REQUIRED_INPUT_COLUMNS:
-        if col in row.columns:
-            continue
-        if col == "age":
-            row[col] = "[70-80]"
-        elif col == "gender":
-            row[col] = "Unknown"
-        elif col == "race":
-            row[col] = "Unknown"
-        elif col == "weight":
-            row[col] = "Unknown"
-        elif col in CATEGORICAL_NONE_DEFAULTS:
-            row[col] = "None"
-        else:
-            row[col] = 0
-    return row
 
 
 artifacts_present = MODEL_PATH.exists() and PREPROC_PATH.exists()
@@ -522,15 +421,16 @@ if (
 
 using_saved_artifacts = st.session_state.get("pipeline_source") == "saved-artifacts"
 model_metadata = load_model_metadata(str(MODEL_METADATA_PATH), using_saved_artifacts)
+api_health = get_api_health(API_BASE_URL)
 
-reference_cohort = load_reference_cohort(REFERENCE_SCORES_PATH)
+reference_cohort = load_reference_cohort(str(REFERENCE_SCORES_PATH))
 reference_scores = (
     reference_cohort["risk_score"].to_numpy(dtype=float)
     if not reference_cohort.empty
     else np.array([], dtype=float)
 )
 inject_custom_styles()
-render_sidebar(model_metadata)
+render_sidebar(model_metadata, api_health)
 render_hero(reference_cohort, reference_scores)
 st.success("Quick demo: choose a preset and click `Predict risk` below.")
 with st.expander("About this solution", expanded=False):
@@ -584,29 +484,10 @@ def load_explainer(_model):
 explainer = None
 if "last_prediction" not in st.session_state:
     st.session_state["last_prediction"] = None
+if "last_batch_result" not in st.session_state:
+    st.session_state["last_batch_result"] = None
 
-default_inputs = {
-    "age": "[50-60)",
-    "gender": "Female",
-    "race": "Caucasian",
-    "time_in_hospital": 4,
-    "num_lab_procedures": 40,
-    "num_procedures": 1,
-    "num_medications": 12,
-    "number_diagnoses": 8,
-    "number_outpatient": 1,
-    "number_emergency": 0,
-    "number_inpatient": 1,
-    "admission_type_id": 1,
-    "discharge_disposition_id": 1,
-    "admission_source_id": 7,
-    "prior_inpatient": 0,
-    "prior_outpatient": 0,
-    "prior_emergency": 0,
-    "prior_positive_count": 0,
-    "diag_delta": 0,
-    "med_delta": 0,
-}
+default_inputs = DEFAULT_DEMO_INPUTS.copy()
 
 patient_presets = {
     "Balanced demo": {
@@ -846,77 +727,153 @@ else:
             )
 
 if submitted:
-    prior_encounters = prior_inpatient + prior_outpatient + prior_emergency
-    encounter_number = prior_encounters + 1
-    ever_prior_positive = 1 if prior_positive_count > 0 else 0
+    prediction_payload: dict[str, Any] = {
+        "age": age,
+        "gender": gender,
+        "race": race,
+        "time_in_hospital": time_in_hospital,
+        "num_lab_procedures": num_lab_procedures,
+        "num_procedures": num_procedures,
+        "num_medications": num_medications,
+        "number_diagnoses": number_diagnoses,
+        "number_outpatient": number_outpatient,
+        "number_emergency": number_emergency,
+        "number_inpatient": number_inpatient,
+        "admission_type_id": admission_type_id,
+        "discharge_disposition_id": discharge_disposition_id,
+        "admission_source_id": admission_source_id,
+        "prior_inpatient": prior_inpatient,
+        "prior_outpatient": prior_outpatient,
+        "prior_emergency": prior_emergency,
+        "prior_positive_count": prior_positive_count,
+        "diag_delta": diag_delta,
+        "med_delta": med_delta,
+    }
 
     with st.spinner("Scoring patient and preparing results..."):
-        row_dict: dict[str, object] = {col: 0 for col in REQUIRED_INPUT_COLUMNS}
-        row_dict.update(
-            {
-                "encounter_id": 999999,
-                "patient_nbr": 9999,
-                "race": race,
-                "gender": gender,
-                "age": age,
-                "admission_type_id": admission_type_id,
-                "discharge_disposition_id": discharge_disposition_id,
-                "admission_source_id": admission_source_id,
-                "time_in_hospital": time_in_hospital,
-                "num_lab_procedures": num_lab_procedures,
-                "num_procedures": num_procedures,
-                "num_medications": num_medications,
-                "number_outpatient": number_outpatient,
-                "number_emergency": number_emergency,
-                "number_inpatient": number_inpatient,
-                "number_diagnoses": number_diagnoses,
-                "encounter_number": encounter_number,
-                "prior_encounters": prior_encounters,
-                "prior_number_inpatient_sum": prior_inpatient,
-                "prior_number_inpatient_mean": float(prior_inpatient),
-                "prior_number_outpatient_sum": prior_outpatient,
-                "prior_number_outpatient_mean": float(prior_outpatient),
-                "prior_number_emergency_sum": prior_emergency,
-                "prior_number_emergency_mean": float(prior_emergency),
-                "prior_total_visits": prior_encounters,
-                "diag_delta": diag_delta,
-                "med_delta": med_delta,
-                "prior_positive_count": prior_positive_count,
-                "ever_prior_positive": ever_prior_positive,
-            }
-        )
-        row = pd.DataFrame([row_dict])
-        row = apply_missing_input_defaults(row)
-
-        t0 = time.time()
-        Xt = transform_with_feature_names(row, preprocessor)
-        t1 = time.time()
-        risk = float(model.predict_proba(Xt)[:, 1][0])
-        t2 = time.time()
-
-        medium_cut, high_cut = get_percentile_thresholds(reference_scores)
-        tier = assign_percentile_tier(risk, medium_cut, high_cut)
-        risk_percentile = get_risk_percentile(risk, reference_scores)
+        result = score_patient_with_optional_api(prediction_payload)
 
     st.session_state["last_prediction"] = {
-        "risk": risk,
-        "tier": tier,
-        "risk_percentile": risk_percentile,
-        "medium_cut": medium_cut,
-        "high_cut": high_cut,
+        "risk": float(result["risk"]),
+        "tier": str(result["tier"]),
+        "risk_percentile": float(result["risk_percentile"]),
+        "medium_cut": float(result["medium_cut"]),
+        "high_cut": float(result["high_cut"]),
         "show_explainability": show_explainability,
-        "row_dict": row_dict,
-        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
-        "model_version": model_metadata.get("version", "unversioned"),
-        "artifact_source": model_metadata.get("artifact_source", "unknown"),
-        "timing": {
-            "preprocessor": t1 - t0,
-            "model": t2 - t1,
-            "total": t2 - t0,
-        },
+        "row_dict": dict(result["row_dict"]),
+        "generated_at": str(result.get("generated_at", "unknown")),
+        "model_version": str(result.get("model_version", "unversioned")),
+        "artifact_source": str(result.get("artifact_source", "unknown")),
+        "inference_mode": str(result.get("inference_mode", "local")),
+        "api_base_url": result.get("api_base_url"),
+        "timing": dict(result.get("timing", {})),
     }
 
 prediction_result = st.session_state.get("last_prediction")
+
+if not docs_explainability_only:
+    st.markdown("---")
+    st.markdown("## Batch Queue Scoring")
+    st.caption(
+        "Upload a CSV of patients to score an outreach queue, "
+        "review tier mix, and export the prioritized results."
+    )
+
+    batch_template = build_batch_template_dataframe()
+    st.download_button(
+        label="Download batch template (CSV)",
+        data=batch_template.to_csv(index=False).encode("utf-8"),
+        file_name="sample_batch_patients.csv",
+        mime="text/csv",
+    )
+    st.caption(
+        "You can upload a small subset of columns like age, gender, race, "
+        "hospital days, meds, diagnoses, and prior utilization. Missing values "
+        "fall back to the demo defaults."
+    )
+
+    uploaded_batch_file = st.file_uploader(
+        "Upload patient CSV for batch scoring",
+        type=["csv"],
+        key="batch_queue_upload",
+    )
+    if uploaded_batch_file is not None:
+        try:
+            uploaded_batch_df = pd.read_csv(uploaded_batch_file)
+        except Exception as exc:
+            st.error(f"Could not read the uploaded CSV: {exc}")
+        else:
+            if uploaded_batch_df.empty:
+                st.warning(
+                    "The uploaded CSV is empty. Please provide at least one row."
+                )
+            else:
+                st.write("**Uploaded batch preview**")
+                st.dataframe(uploaded_batch_df.head(10), width="stretch")
+                if st.button(
+                    "Score uploaded queue",
+                    type="primary",
+                    use_container_width=True,
+                ):
+                    payloads = uploaded_batch_df.where(
+                        pd.notnull(uploaded_batch_df), None
+                    ).to_dict(orient="records")
+                    with st.spinner("Scoring uploaded patient batch..."):
+                        st.session_state["last_batch_result"] = (
+                            score_batch_with_optional_api(payloads)
+                        )
+
+    batch_result = st.session_state.get("last_batch_result")
+    if batch_result:
+        batch_predictions = batch_result.get("predictions", [])
+        if batch_predictions:
+            scored_batch_df = pd.DataFrame(
+                [
+                    {
+                        "encounter_id": item["row_dict"].get("encounter_id"),
+                        "patient_nbr": item["row_dict"].get("patient_nbr"),
+                        "age": item["row_dict"].get("age"),
+                        "gender": item["row_dict"].get("gender"),
+                        "race": item["row_dict"].get("race"),
+                        "time_in_hospital": item["row_dict"].get("time_in_hospital"),
+                        "num_medications": item["row_dict"].get("num_medications"),
+                        "number_diagnoses": item["row_dict"].get("number_diagnoses"),
+                        "risk_score": float(item["risk"]),
+                        "risk_percentile": float(item["risk_percentile"]),
+                        "priority_tier": item["tier"],
+                    }
+                    for item in batch_predictions
+                ]
+            ).sort_values("risk_score", ascending=False, ignore_index=True)
+
+            tier_counts = batch_result.get("tier_counts", {})
+            batch_timing = batch_result.get("timing", {})
+            b1, b2, b3, b4 = st.columns(4)
+            b1.metric("Batch patients", int(batch_result.get("count", 0)))
+            b2.metric("High priority", int(tier_counts.get("High", 0)))
+            b3.metric("Medium priority", int(tier_counts.get("Medium", 0)))
+            b4.metric(
+                "Average risk",
+                format_percent(float(scored_batch_df["risk_score"].mean())),
+            )
+
+            if batch_timing:
+                st.caption(
+                    "Batch preprocessor: "
+                    f"{float(batch_timing.get('preprocessor', 0.0)):.3f}s, "
+                    f"Model: {float(batch_timing.get('model', 0.0)):.3f}s, "
+                    f"Total: {float(batch_timing.get('total', 0.0)):.3f}s"
+                )
+
+            st.write("**Prioritized batch preview**")
+            st.dataframe(scored_batch_df.head(25), width="stretch")
+
+            st.download_button(
+                label="Download scored batch (CSV)",
+                data=scored_batch_df.to_csv(index=False).encode("utf-8"),
+                file_name="scored_batch_queue.csv",
+                mime="text/csv",
+            )
 
 if prediction_result is None and not docs_explainability_only:
     st.info("Prediction results will appear here after you click `Predict risk`.")
@@ -967,18 +924,20 @@ if prediction_result is not None:
     }
     st.info(action_map[tier])
     with st.expander("Prediction metadata", expanded=False):
-        st.json(
-            {
-                "generated_at": prediction_result.get("generated_at", "unknown"),
-                "model_version": prediction_result.get("model_version", "unversioned"),
-                "artifact_source": prediction_result.get("artifact_source", "unknown"),
-                "reference_mode": (
-                    "saved trained artifacts"
-                    if using_saved_artifacts
-                    else "fallback demo model"
-                ),
-            }
-        )
+        metadata_payload = {
+            "generated_at": prediction_result.get("generated_at", "unknown"),
+            "model_version": prediction_result.get("model_version", "unversioned"),
+            "artifact_source": prediction_result.get("artifact_source", "unknown"),
+            "inference_mode": prediction_result.get("inference_mode", "local"),
+            "reference_mode": (
+                "saved trained artifacts"
+                if using_saved_artifacts
+                else "fallback demo model"
+            ),
+        }
+        if prediction_result.get("api_base_url"):
+            metadata_payload["api_base_url"] = prediction_result["api_base_url"]
+        st.json(metadata_payload)
     st.caption(
         "This is a prioritization aid for demos and workflow planning, not a diagnosis."
     )
