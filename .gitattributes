@@ -1,0 +1,9 @@
+# Normalize line endings to LF in the repository for all text files.
+# This prevents black --check failures in Linux CI when files were checked
+# out on Windows with core.autocrlf=true.
+
+* text=auto eol=lf
+
+# Explicitly keep batch scripts with CRLF so they run on Windows
+*.bat text eol=crlf
+*.cmd text eol=crlf
