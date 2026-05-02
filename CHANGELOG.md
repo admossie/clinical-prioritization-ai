@@ -16,6 +16,9 @@ All notable changes to this project will be documented in this file.
 - `data/external/sample_batch_patients.csv` for quick demo-ready batch scoring.
 - `SECURITY.md` and `SUPPORT.md` for a more professional GitHub repository structure.
 - `conftest.py` at the project root to ensure `src` and `api` packages are importable in all pytest invocations.
+- `.github/workflows/security.yml` to run `pip-audit` and `bandit` on pushes, pull requests, and a weekly schedule.
+- `[project.optional-dependencies].dev` in `pyproject.toml` to formalize developer and security tooling.
+- `setup_windows_env.bat` to bootstrap a Python `3.10+` virtual environment, install dependencies, and run quality/security checks in one command.
 
 ### Changed
 - Improved Streamlit prediction wording to show **estimated risk as a percentage**, percentile-based priority context, and clearer operational guidance.
@@ -23,6 +26,11 @@ All notable changes to this project will be documented in this file.
 - Standardized demo launch instructions around `streamlit run app.py`.
 - Expanded the app from single-patient prediction to both individual and uploaded CSV queue scoring.
 - Restructured `README.md` and `CONTRIBUTING.md` into a cleaner, more professional GitHub presentation format.
+- Replaced `urllib` API calls in the Streamlit app with `requests` calls that enforce status checks and timeouts.
+- Replaced silent `except ...: pass` fallback paths with debug logging in `app/streamlit_app.py` and `src/inference.py`.
+- Tightened dependency version constraints in `requirements.txt` and aligned package metadata in `pyproject.toml` for better reproducibility.
+- Raised the declared minimum Python version to `3.10+` to align with secured dependency support and deployment/runtime configuration.
+- Updated `run_windows.bat` to fail fast on unsupported Python versions with a clear upgrade path.
 
 ## [1.0.2] - 2026-04-07
 ### Added

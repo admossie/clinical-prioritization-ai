@@ -9,22 +9,36 @@ description = "Machine learning engine for patient prioritization and readmissio
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [ { name = "AI Care Prioritization Engine Team" } ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 keywords = ["healthcare", "readmission", "care prioritization", "machine learning", "triage"]
 dependencies = [
-    "pandas",
-    "numpy",
+    "pandas>=2.1,<3.0",
+    "numpy>=1.24,<3.0",
     "scikit-learn==1.6.1",
-    "streamlit",
-    "fastapi",
-    "uvicorn",
-    "httpx",
-    "catboost",
-    "xgboost",
-    "matplotlib",
-    "seaborn",
-    "joblib",
-    "requests"
+    "streamlit>=1.54.0,<2.0",
+    "fastapi>=0.111,<1.0",
+    "uvicorn>=0.30,<1.0",
+    "httpx>=0.27,<1.0",
+    "catboost>=1.2,<2.0",
+    "xgboost>=2.0,<3.0",
+    "matplotlib>=3.8,<4.0",
+    "seaborn>=0.13,<1.0",
+    "joblib>=1.3,<2.0",
+    "requests>=2.33.0,<3.0",
+    "pillow>=12.2.0,<13.0",
+    "shap>=0.45,<1.0",
+    "lightgbm>=4.0,<5.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.4,<10.0",
+    "black>=25.11.0,<27.0",
+    "flake8==7.0.0",
+    "pre-commit>=4.3,<5.0",
+    "mypy>=1.8,<2.0",
+    "pip-audit>=2.9,<3.0",
+    "bandit>=1.7,<2.0"
 ]
 
 [project.urls]
@@ -44,5 +58,4 @@ testpaths = ["tests"]
 
 [tool.black]
 line-length = 88
-target-version = ["py39"]
-required-version = "24.3.0"
+target-version = ["py310"]

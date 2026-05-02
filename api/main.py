@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from typing import Any
 
 import uvicorn
@@ -129,4 +130,6 @@ def batch_predict(request: BatchPredictRequest) -> dict[str, Any]:
 
 
 if __name__ == "__main__":
-    uvicorn.run("api.main:app", host="0.0.0.0", port=8000, reload=False)
+    host = os.getenv("CARE_API_HOST", "127.0.0.1")
+    port = int(os.getenv("CARE_API_PORT", "8000"))
+    uvicorn.run("api.main:app", host=host, port=port, reload=False)

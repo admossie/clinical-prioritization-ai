@@ -6,7 +6,7 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/admossie/clinical-prioritization-ai/ci.yml?label=CI)](https://github.com/admossie/clinical-prioritization-ai/actions/workflows/ci.yml)
 [![Lint](https://img.shields.io/github/actions/workflow/status/admossie/clinical-prioritization-ai/lint.yml?label=Lint)](https://github.com/admossie/clinical-prioritization-ai/actions/workflows/lint.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](pyproject.toml)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](pyproject.toml)
 
 This repository packages a professional, portfolio-ready machine learning workflow for **readmission risk prediction**, **capacity-aware prioritization**, and **operational triage simulation** through both a `Streamlit` interface and a lightweight `FastAPI` layer.
 
@@ -45,6 +45,14 @@ pip install -r requirements.txt
 python -m src.train --data-path data/raw/diabetic_data.csv
 python -m src.evaluate --data-path data/raw/diabetic_data.csv
 streamlit run app.py
+```
+
+Python `3.10+` is required.
+
+On Windows, you can run a full bootstrap + validation flow with:
+
+```bat
+setup_windows_env.bat
 ```
 
 Use `app.py` for the standard GitHub quickstart. It launches `app/streamlit_app.py` internally.
