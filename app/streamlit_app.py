@@ -1,15 +1,14 @@
-import json
+import logging
 import os
 import sys
 import time
 from pathlib import Path
 from typing import Any, Optional
-from urllib import error as urllib_error
-from urllib import request as urllib_request
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import requests
 import shap
 import streamlit as st
 
@@ -38,6 +37,8 @@ from src.inference import (  # noqa: E402
 )
 from src.preprocess import transform_with_feature_names  # noqa: E402
 from src.workflow_simulation import hospital_roi  # noqa: E402
+
+LOGGER = logging.getLogger(__name__)
 
 
 def get_screenshot_mode() -> str:
@@ -290,9 +291,10 @@ def get_api_health(base_url: str) -> Optional[dict[str, str]]:
         return None
 
     try:
-        with urllib_request.urlopen(f"{base_url}/health", timeout=0.4) as response:
-            payload = json.loads(response.read().decode("utf-8"))
-    except (urllib_error.URLError, OSError, ValueError):
+        response = requests.get(f"{base_url}/health", timeout=0.4)
+        response.raise_for_status()
+        payload = response.json()
+    except (requests.RequestException, ValueError):
         return None
 
     if payload.get("status") != "ok":
@@ -304,20 +306,21 @@ def get_api_health(base_url: str) -> Optional[dict[str, str]]:
 def score_patient_with_optional_api(payload: dict[str, Any]) -> dict[str, Any]:
     api_health = get_api_health(API_BASE_URL)
     if api_health:
-        request = urllib_request.Request(
-            f"{API_BASE_URL}/predict",
-            data=json.dumps(payload).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
         try:
-            with urllib_request.urlopen(request, timeout=1.5) as response:
-                result = json.loads(response.read().decode("utf-8"))
+            response = requests.post(
+                f"{API_BASE_URL}/predict",
+                json=payload,
+                timeout=1.5,
+            )
+            response.raise_for_status()
+            result = response.json()
             result["inference_mode"] = "api"
             result["api_base_url"] = API_BASE_URL
             return result
-        except (urllib_error.URLError, OSError, ValueError):
-            pass
+        except (requests.RequestException, ValueError):
+            LOGGER.debug(
+                "Falling back to local single-patient inference.", exc_info=True
+            )
 
     result = score_patient_payload(payload)
     result["inference_mode"] = "local"
@@ -330,20 +333,19 @@ def score_batch_with_optional_api(
 ) -> dict[str, Any]:
     api_health = get_api_health(API_BASE_URL)
     if api_health:
-        request = urllib_request.Request(
-            f"{API_BASE_URL}/batch_predict",
-            data=json.dumps({"patients": payloads}).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
         try:
-            with urllib_request.urlopen(request, timeout=3.0) as response:
-                result = json.loads(response.read().decode("utf-8"))
+            response = requests.post(
+                f"{API_BASE_URL}/batch_predict",
+                json={"patients": payloads},
+                timeout=3.0,
+            )
+            response.raise_for_status()
+            result = response.json()
             result["inference_mode"] = "api"
             result["api_base_url"] = API_BASE_URL
             return result
-        except (urllib_error.URLError, OSError, ValueError):
-            pass
+        except (requests.RequestException, ValueError):
+            LOGGER.debug("Falling back to local batch inference.", exc_info=True)
 
     result = score_batch_payloads(payloads)
     result["inference_mode"] = "local"
@@ -462,7 +464,9 @@ if not st.session_state.get("_predictor_warmed", False):
         warm_xt = transform_with_feature_names(warm_row, preprocessor)
         _ = model.predict_proba(warm_xt)
     except Exception:
-        pass
+        LOGGER.debug(
+            "Predictor warm-up failed; continuing without warm cache.", exc_info=True
+        )
     st.session_state["_predictor_warmed"] = True
 
 screenshot_mode = get_screenshot_mode()
@@ -478,6 +482,9 @@ def load_explainer(_model):
             return shap.TreeExplainer(_model)
         return shap.Explainer(_model)
     except Exception:
+        LOGGER.debug(
+            "Could not initialize SHAP explainer for current model.", exc_info=True
+        )
         return None
 
 

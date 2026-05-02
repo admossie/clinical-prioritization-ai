@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import time
 from datetime import datetime, timezone
 from functools import lru_cache
@@ -19,6 +20,8 @@ from .preprocess import (
 )
 from .schemas import TARGET_COLUMN
 from .temporal_features import add_temporal_features
+
+LOGGER = logging.getLogger(__name__)
 
 ROOT = Path(__file__).resolve().parents[1]
 MODEL_PATH = ROOT / "models" / "best_model.joblib"
@@ -187,7 +190,10 @@ def load_pipeline():
             preprocessor = joblib.load(PREPROC_PATH)
             return model, preprocessor, "saved-artifacts"
         except Exception:
-            pass
+            LOGGER.debug(
+                "Failed to load saved model artifacts; using fallback pipeline.",
+                exc_info=True,
+            )
 
     model, preprocessor = fit_fallback_pipeline()
     return model, preprocessor, "fallback-demo"
@@ -209,7 +215,9 @@ def load_model_metadata(
             loaded = json.loads(metadata_path.read_text(encoding="utf-8"))
             metadata.update({key: str(value) for key, value in loaded.items()})
         except Exception:
-            pass
+            LOGGER.debug(
+                "Model metadata parsing failed; using defaults.", exc_info=True
+            )
 
     if use_saved_artifacts is not None:
         metadata["artifact_source"] = (
