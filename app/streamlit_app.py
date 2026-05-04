@@ -602,6 +602,15 @@ else:
             preset_options,
             help="Use a preset to make demos faster and more realistic.",
         )
+        # Clear prediction results if preset changes
+        if (
+            "last_prediction_preset" in st.session_state
+            and st.session_state["last_prediction_preset"] != preset_name
+        ):
+            st.session_state["last_prediction"] = None
+            st.session_state["last_batch_result"] = None
+        st.session_state["last_prediction_preset"] = preset_name
+
         preset_values = patient_presets[preset_name]["values"]
         st.caption(patient_presets[preset_name]["description"])
 
