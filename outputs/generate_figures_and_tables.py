@@ -1,4 +1,5 @@
 import joblib
+import numpy as np  # noqa: F401  used via toarray() result handling
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -83,8 +84,6 @@ model = joblib.load("models/best_model.joblib")
 preprocessor = joblib.load("models/preprocessor.joblib")
 
 # Use a sample for SHAP to save time; convert sparse to dense for compatibility
-import numpy as np
-
 X = scored.drop(columns=["target", "risk_score"])
 X_proc = preprocessor.transform(X)
 if hasattr(X_proc, "toarray"):
@@ -96,7 +95,9 @@ try:
     explainer = shap.Explainer(model)
     shap_values = explainer(X_proc_sample)
     plt.figure(figsize=(8, 6))
-    shap.summary_plot(shap_values, X_proc_sample, feature_names=feature_names, show=False)
+    shap.summary_plot(
+        shap_values, X_proc_sample, feature_names=feature_names, show=False
+    )
     plt.tight_layout()
     plt.savefig("outputs/figures/shap_summary.png", dpi=300)
     plt.close()
