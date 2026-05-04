@@ -629,63 +629,104 @@ else:
                     "Age band",
                     age_options,
                     index=safe_index(age_options, str(preset_values["age"])),
+                    key=f"age_{preset_name}",
                 )
             with p2:
                 gender = st.selectbox(
                     "Gender",
                     gender_options,
                     index=safe_index(gender_options, str(preset_values["gender"])),
+                    key=f"gender_{preset_name}",
                 )
             with p3:
                 race = st.selectbox(
                     "Race",
                     race_options,
                     index=safe_index(race_options, str(preset_values["race"])),
+                    key=f"race_{preset_name}",
                 )
 
             st.markdown("### Encounter and utilization")
             c1, c2 = st.columns(2)
             with c1:
                 time_in_hospital = st.slider(
-                    "Time in hospital", 1, 14, int(preset_values["time_in_hospital"])
+                    "Time in hospital",
+                    1,
+                    14,
+                    int(preset_values["time_in_hospital"]),
+                    key=f"time_in_hospital_{preset_name}",
                 )
                 num_lab_procedures = st.slider(
-                    "Lab procedures", 1, 100, int(preset_values["num_lab_procedures"])
+                    "Lab procedures",
+                    1,
+                    100,
+                    int(preset_values["num_lab_procedures"]),
+                    key=f"num_lab_procedures_{preset_name}",
                 )
                 num_procedures = st.slider(
-                    "Procedures", 0, 6, int(preset_values["num_procedures"])
+                    "Procedures",
+                    0,
+                    6,
+                    int(preset_values["num_procedures"]),
+                    key=f"num_procedures_{preset_name}",
                 )
                 num_medications = st.slider(
-                    "Medications", 1, 40, int(preset_values["num_medications"])
+                    "Medications",
+                    1,
+                    40,
+                    int(preset_values["num_medications"]),
+                    key=f"num_medications_{preset_name}",
                 )
                 number_diagnoses = st.slider(
-                    "Diagnoses", 1, 16, int(preset_values["number_diagnoses"])
+                    "Diagnoses",
+                    1,
+                    16,
+                    int(preset_values["number_diagnoses"]),
+                    key=f"number_diagnoses_{preset_name}",
                 )
 
             with c2:
                 number_outpatient = st.slider(
-                    "Outpatient visits", 0, 20, int(preset_values["number_outpatient"])
+                    "Outpatient visits",
+                    0,
+                    20,
+                    int(preset_values["number_outpatient"]),
+                    key=f"number_outpatient_{preset_name}",
                 )
                 number_emergency = st.slider(
-                    "Emergency visits", 0, 10, int(preset_values["number_emergency"])
+                    "Emergency visits",
+                    0,
+                    10,
+                    int(preset_values["number_emergency"]),
+                    key=f"number_emergency_{preset_name}",
                 )
                 number_inpatient = st.slider(
-                    "Inpatient visits", 0, 10, int(preset_values["number_inpatient"])
+                    "Inpatient visits",
+                    0,
+                    10,
+                    int(preset_values["number_inpatient"]),
+                    key=f"number_inpatient_{preset_name}",
                 )
                 admission_type_id = st.slider(
-                    "Admission type ID", 1, 8, int(preset_values["admission_type_id"])
+                    "Admission type ID",
+                    1,
+                    8,
+                    int(preset_values["admission_type_id"]),
+                    key=f"admission_type_id_{preset_name}",
                 )
                 discharge_disposition_id = st.slider(
                     "Discharge disposition ID",
                     1,
                     30,
                     int(preset_values["discharge_disposition_id"]),
+                    key=f"discharge_disposition_id_{preset_name}",
                 )
                 admission_source_id = st.slider(
                     "Admission source ID",
                     1,
                     25,
                     int(preset_values["admission_source_id"]),
+                    key=f"admission_source_id_{preset_name}",
                 )
 
             st.markdown("### Prior history")
@@ -696,12 +737,14 @@ else:
                     0,
                     20,
                     int(preset_values["prior_inpatient"]),
+                    key=f"prior_inpatient_{preset_name}",
                 )
                 prior_outpatient = st.slider(
                     "Prior outpatient total",
                     0,
                     20,
                     int(preset_values["prior_outpatient"]),
+                    key=f"prior_outpatient_{preset_name}",
                 )
             with h2:
                 prior_emergency = st.slider(
@@ -709,25 +752,36 @@ else:
                     0,
                     20,
                     int(preset_values["prior_emergency"]),
+                    key=f"prior_emergency_{preset_name}",
                 )
                 prior_positive_count = st.slider(
                     "Prior readmissions",
                     0,
                     10,
                     int(preset_values["prior_positive_count"]),
+                    key=f"prior_positive_count_{preset_name}",
                 )
             with h3:
                 diag_delta = st.slider(
-                    "Diagnosis change", -10, 10, int(preset_values["diag_delta"])
+                    "Diagnosis change",
+                    -10,
+                    10,
+                    int(preset_values["diag_delta"]),
+                    key=f"diag_delta_{preset_name}",
                 )
                 med_delta = st.slider(
-                    "Medication change", -20, 20, int(preset_values["med_delta"])
+                    "Medication change",
+                    -20,
+                    20,
+                    int(preset_values["med_delta"]),
+                    key=f"med_delta_{preset_name}",
                 )
 
             show_explainability = st.checkbox(
                 "Include explainability details (slower)",
                 value=False,
                 help="Enable SHAP feature contribution charts for deeper review.",
+                key=f"show_explainability_{preset_name}",
             )
             submitted = st.form_submit_button(
                 "Predict risk", type="primary", use_container_width=True
