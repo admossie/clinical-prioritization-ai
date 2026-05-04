@@ -757,24 +757,32 @@ if submitted:
         "med_delta": med_delta,
     }
 
-    with st.spinner("Scoring patient and preparing results..."):
-        result = score_patient_with_optional_api(prediction_payload)
+    try:
+        with st.spinner("Scoring patient and preparing results..."):
+            result = score_patient_with_optional_api(prediction_payload)
 
-    st.session_state["last_prediction"] = {
-        "risk": float(result["risk"]),
-        "tier": str(result["tier"]),
-        "risk_percentile": float(result["risk_percentile"]),
-        "medium_cut": float(result["medium_cut"]),
-        "high_cut": float(result["high_cut"]),
-        "show_explainability": show_explainability,
-        "row_dict": dict(result["row_dict"]),
-        "generated_at": str(result.get("generated_at", "unknown")),
-        "model_version": str(result.get("model_version", "unversioned")),
-        "artifact_source": str(result.get("artifact_source", "unknown")),
-        "inference_mode": str(result.get("inference_mode", "local")),
-        "api_base_url": result.get("api_base_url"),
-        "timing": dict(result.get("timing", {})),
-    }
+        st.session_state["last_prediction"] = {
+            "risk": float(result["risk"]),
+            "tier": str(result["tier"]),
+            "risk_percentile": float(result["risk_percentile"]),
+            "medium_cut": float(result["medium_cut"]),
+            "high_cut": float(result["high_cut"]),
+            "show_explainability": show_explainability,
+            "row_dict": dict(result["row_dict"]),
+            "generated_at": str(result.get("generated_at", "unknown")),
+            "model_version": str(result.get("model_version", "unversioned")),
+            "artifact_source": str(result.get("artifact_source", "unknown")),
+            "inference_mode": str(result.get("inference_mode", "local")),
+            "api_base_url": result.get("api_base_url"),
+            "timing": dict(result.get("timing", {})),
+        }
+    except Exception as exc:
+        st.error(
+            f"Failed to score patient: {str(exc)}. "
+            "Please check your inputs and try again."
+        )
+        LOGGER.error(f"Prediction failed with error: {exc}", exc_info=True)
+        st.session_state["last_prediction"] = None
 
 prediction_result = st.session_state.get("last_prediction")
 
@@ -825,10 +833,20 @@ if not docs_explainability_only:
                     payloads = uploaded_batch_df.where(
                         pd.notnull(uploaded_batch_df), None
                     ).to_dict(orient="records")
-                    with st.spinner("Scoring uploaded patient batch..."):
-                        st.session_state["last_batch_result"] = (
-                            score_batch_with_optional_api(payloads)
+                    try:
+                        with st.spinner("Scoring uploaded patient batch..."):
+                            st.session_state["last_batch_result"] = (
+                                score_batch_with_optional_api(payloads)
+                            )
+                    except Exception as exc:
+                        st.error(
+                            f"Failed to score batch: {str(exc)}. "
+                            "Please check your CSV and try again."
                         )
+                        LOGGER.error(
+                            f"Batch prediction failed with error: {exc}", exc_info=True
+                        )
+                        st.session_state["last_batch_result"] = None
 
     batch_result = st.session_state.get("last_batch_result")
     if batch_result:
