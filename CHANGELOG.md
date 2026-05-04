@@ -3,6 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+
+## [1.0.7] - 2026-05-02
 ### Added
 - `DEPLOYMENT.md`, `.streamlit/config.toml`, and `packages.txt` for a smoother public demo deployment path.
 - A Streamlit smoke test to catch app-launch and prediction-flow regressions earlier.
