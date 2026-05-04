@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.0.8] - 2026-05-04
+### Fixed
+- Relaxed `scikit-learn==1.6.1` pin to `>=1.6,<2.0` to support Python 3.14 (resolves to 1.8.0 which ships a pre-built wheel for CPython 3.14).
+- Rebuilt virtual environment on Python 3.14.4 — all runtime and dev dependencies install cleanly with no source compilation required.
+- `pip-audit` now reports **0 known vulnerabilities** across all runtime dependencies (previously 9 CVEs were blocked by the Python 3.9 interpreter; all patched versions are now installed).
+
 ## [1.0.7] - 2026-05-02
 ### Added
 - `DEPLOYMENT.md`, `.streamlit/config.toml`, and `packages.txt` for a smoother public demo deployment path.
