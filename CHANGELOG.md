@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.0.9] - 2026-05-04
+### Fixed
+- Retrained `models/best_model.joblib` and `models/preprocessor.joblib` with scikit-learn 1.8.0. The preprocessor saved under 1.6.1 referenced an internal class (`_RemainderColsList`) removed in 1.8.0, causing a silent load failure and every patient returning the same 52.9% risk score regardless of inputs.
+- Added try-except error handling to single-patient and batch scoring calls in the Streamlit app. Users now see a clear error message instead of a silent failure when prediction fails.
+- Fixed demo preset switching: form widget values now reset when the user changes the demo preset, and stale prediction results are cleared automatically.
+- Increased `FALLBACK_TRAIN_ROWS` from 250 to 5000 so the fallback demo model is more representative when saved artifacts cannot be loaded.
+
 ## [1.0.8] - 2026-05-04
 ### Fixed
 - Relaxed `scikit-learn==1.6.1` pin to `>=1.6,<2.0` to support Python 3.14 (resolves to 1.8.0 which ships a pre-built wheel for CPython 3.14).

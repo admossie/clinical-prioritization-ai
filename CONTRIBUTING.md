@@ -33,7 +33,11 @@ Before opening a PR, run:
 black --check app src tests outputs
 flake8 app src tests outputs
 pytest -q
+bandit -q -r src api app
+pip-audit -r requirements.txt
 ```
+
+Security checks (`bandit`, `pip-audit`) also run automatically on every push and pull request via `.github/workflows/security.yml`.
 
 ## Contribution standards
 
