@@ -106,8 +106,9 @@ This makes the demo easier to understand for hospital partners, startup conversa
 
 - ROC-AUC: 0.689 (LightGBM, retrained on scikit-learn 1.8.0)
 - PR-AUC: 0.244
-- Top 20% capture: ~41%
-- Brier score: 0.09
+- Top 20% capture: 41.2%
+- Top 10% capture: 26.1%
+- Brier score: 0.091
 
 These results indicate moderate ranking performance with usable probability calibration for prioritization-oriented workflows. Model artifacts are saved as `models/best_model.joblib` and `models/preprocessor.joblib` and are compatible with scikit-learn 1.8.0 and Python 3.10+.
 

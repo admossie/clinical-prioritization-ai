@@ -78,18 +78,29 @@ brier = brier_score_loss(scored["target"], scored["risk_score"])
 with open("outputs/tables/brier_score.txt", "w") as f:
     f.write(f"Brier score: {brier:.4f}\n")
 
-# SHAP feature importance (XGBoost)
+# SHAP feature importance
 model = joblib.load("models/best_model.joblib")
 preprocessor = joblib.load("models/preprocessor.joblib")
 
-# Use a sample for SHAP to save time
+# Use a sample for SHAP to save time; convert sparse to dense for compatibility
+import numpy as np
+
 X = scored.drop(columns=["target", "risk_score"])
 X_proc = preprocessor.transform(X)
-explainer = shap.Explainer(model)
-shap_values = explainer(X_proc[:200])
-plt.figure(figsize=(8, 6))
-shap.summary_plot(shap_values, X_proc[:200], show=False)
-plt.tight_layout()
-plt.savefig("outputs/figures/shap_summary.png", dpi=300)
+if hasattr(X_proc, "toarray"):
+    X_proc = X_proc.toarray()
+feature_names = preprocessor.get_feature_names_out()
+X_proc_sample = X_proc[:200]
+
+try:
+    explainer = shap.Explainer(model)
+    shap_values = explainer(X_proc_sample)
+    plt.figure(figsize=(8, 6))
+    shap.summary_plot(shap_values, X_proc_sample, feature_names=feature_names, show=False)
+    plt.tight_layout()
+    plt.savefig("outputs/figures/shap_summary.png", dpi=300)
+    plt.close()
+except Exception as e:
+    print(f"SHAP summary skipped: {e}")
 
 print("All figures and tables generated in outputs/figures and outputs/tables.")
