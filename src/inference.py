@@ -32,7 +32,7 @@ FALLBACK_DATA_PATHS = [
     ROOT / "data" / "raw" / "diabetic_data.csv",
     ROOT / "data" / "raw" / "sample_diabetic_data.csv",
 ]
-FALLBACK_TRAIN_ROWS = 250
+FALLBACK_TRAIN_ROWS = 5000
 
 DEFAULT_DEMO_INPUTS: dict[str, Any] = {
     "age": "[50-60)",
