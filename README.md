@@ -47,13 +47,15 @@ python -m src.evaluate --data-path data/raw/diabetic_data.csv
 streamlit run app.py
 ```
 
-Python `3.10+` is required.
+Python `3.10+` is required (tested on Python 3.11 and 3.14).
 
 On Windows, you can run a full bootstrap + validation flow with:
 
 ```bat
 setup_windows_env.bat
 ```
+
+This creates the virtual environment, installs all dependencies, and runs black, flake8, pytest, bandit, and pip-audit in one step.
 
 Use `app.py` for the standard GitHub quickstart. It launches `app/streamlit_app.py` internally.
 
@@ -102,12 +104,12 @@ This makes the demo easier to understand for hospital partners, startup conversa
 
 ## Key outputs
 
-- ROC-AUC: 0.69
-- PR-AUC: 0.24
-- Top 20% capture: 41%
+- ROC-AUC: 0.689 (LightGBM, retrained on scikit-learn 1.8.0)
+- PR-AUC: 0.244
+- Top 20% capture: ~41%
 - Brier score: 0.09
 
-These results indicate moderate ranking performance with usable probability calibration for prioritization-oriented workflows.
+These results indicate moderate ranking performance with usable probability calibration for prioritization-oriented workflows. Model artifacts are saved as `models/best_model.joblib` and `models/preprocessor.joblib` and are compatible with scikit-learn 1.8.0 and Python 3.10+.
 
 ## Streamlit screenshots
 

@@ -18,6 +18,16 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
+### Windows one-command bootstrap
+
+If you are on Windows and want a full setup including tests and security checks:
+
+```bat
+setup_windows_env.bat
+```
+
+Requires Python 3.10+. Run `py --version` to check.
+
 ### Running the API locally
 
 ```bash
