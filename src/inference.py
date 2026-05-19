@@ -205,7 +205,7 @@ def load_model_metadata(
 ) -> dict[str, str]:
     metadata = {
         "model_name": "clinical-readmission-prioritizer",
-        "version": "v1.0.5",
+        "version": "v1.0.9",
         "artifact_source": "fallback-demo",
     }
 
