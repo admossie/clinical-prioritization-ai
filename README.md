@@ -10,6 +10,12 @@
 
 This repository packages a professional, portfolio-ready machine learning workflow for **readmission risk prediction**, **capacity-aware prioritization**, and **operational triage simulation** through both a `Streamlit` interface and a lightweight `FastAPI` layer.
 
+## Live demo
+
+Streamlit Community Cloud:
+
+- https://admossie-clinical-prioritization-ai-app-hzx0qb.streamlit.app/
+
 ## At a glance
 
 | Area | Details |
