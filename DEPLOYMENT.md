@@ -4,6 +4,10 @@
 
 This repository is ready to deploy using `app.py` as the main entrypoint.
 
+Current public app URL:
+
+- https://admossie-clinical-prioritization-ai-app-hzx0qb.streamlit.app/
+
 ## Deployment checklist
 
 Use this as the minimum release-ready checklist before sharing the app publicly:
