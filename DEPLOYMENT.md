@@ -4,6 +4,17 @@
 
 This repository is ready to deploy using `app.py` as the main entrypoint.
 
+## Deployment checklist
+
+Use this as the minimum release-ready checklist before sharing the app publicly:
+
+1. Confirm the latest tag is present on GitHub.
+2. Verify `app.py` launches locally with `streamlit run app.py`.
+3. Confirm the model artifacts load and the fallback path still works.
+4. Publish the Streamlit app with `app.py` as the main file.
+5. Test a single-patient prediction and a CSV batch upload in the hosted app.
+6. Capture a screenshot or short demo note for the README.
+
 ### Steps
 1. Push the repository to GitHub.
 2. Open Streamlit Community Cloud and create a new app.
@@ -49,3 +60,13 @@ This launches:
   ```
 - If hosted deployment fails on system libraries, confirm `packages.txt` is being used.
 - Use `streamlit run app.py` locally before deploying to verify the app still launches.
+
+## Pilot readiness notes
+
+If this deployment is being used for a pilot, collect these checks before widening access:
+
+- Prediction load time in the hosted environment
+- Whether the risk tier is understandable to the intended users
+- Whether queue export works for the pilot cohort size
+- Whether the current fallback behavior is acceptable for demo use
+- Whether the pilot metrics are being stored somewhere reproducible
