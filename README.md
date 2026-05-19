@@ -27,6 +27,29 @@ Most readmission models stop at ranking risk. Operational teams need one step mo
 
 This repository packages that full workflow into a reproducible research project and demo application.
 
+## How it works
+
+The project follows a simple operational flow:
+
+1. Raw patient data is cleaned and transformed into model-ready features.
+2. A trained classifier predicts readmission risk.
+3. The risk score is translated into queue priority, percentile context, and suggested action.
+4. The Streamlit app presents the result for single-patient scoring or CSV batch scoring.
+5. The same inference logic can be reused through the FastAPI layer or Docker deployment.
+
+## Architecture
+
+```mermaid
+flowchart LR
+  A[Raw patient data] --> B[Feature preprocessing]
+  B --> C[Trained risk model]
+  C --> D[Risk score and percentile]
+  D --> E[Priority tier and action]
+  E --> F[Streamlit demo]
+  E --> G[FastAPI endpoints]
+  F --> H[Queue export and explainability]
+```
+
 ## What it includes
 
 - Temporal feature engineering from patient history
@@ -101,6 +124,16 @@ When the Streamlit demo returns a prediction, it now presents the result in a Gi
 - **Recommended action** explains how a care team might respond under limited capacity
 
 This makes the demo easier to understand for hospital partners, startup conversations, and GitHub visitors who are reviewing the project quickly.
+
+## Pilot validation plan
+
+If you want to test the project in a real workflow, the next step is a small pilot with a fixed success definition.
+
+- Data scope: one pilot dataset or a narrow care-management queue.
+- Success metrics: intervention lift, workload reduction, readmission avoidance, and score stability.
+- Workflow check: whether care teams understand the priority tier without extra explanation.
+- Guardrails: verify fallback behavior, model load behavior, and CSV batch scoring on the target environment.
+- Outcome: decide whether to keep the current triage flow, add a clinician dashboard, or plan EHR integration.
 
 ## Key outputs
 
@@ -241,6 +274,15 @@ This framing makes the prioritization step explicit rather than treating predict
 - The manuscript template lives in `paper/manuscript_draft.md`
 - The explainability figure can be regenerated deterministically from `outputs/generate_explainability_figure.py`
 - The GitHub social preview asset can be regenerated from `outputs/generate_social_preview.py`
+
+## Next steps
+
+The repo is release-ready, so the remaining work is mainly product validation and presentation polish:
+
+- Deploy or verify the public demo
+- Run a pilot evaluation on real operational data
+- Capture screenshots, demo notes, and workflow feedback
+- Decide whether the next build should focus on a clinician dashboard or an integration path
 
 ## Citation
 

@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- Added clearer public-story documentation in `README.md` and a deployment checklist in `DEPLOYMENT.md`.
+- Added a concise pilot validation plan so the next phase can focus on workflow proof instead of more model changes.
+
 ## [1.0.9] - 2026-05-04
 ### Fixed
 - Retrained `models/best_model.joblib` and `models/preprocessor.joblib` with scikit-learn 1.8.0. The preprocessor saved under 1.6.1 referenced an internal class (`_RemainderColsList`) removed in 1.8.0, causing a silent load failure and every patient returning the same 52.9% risk score regardless of inputs.

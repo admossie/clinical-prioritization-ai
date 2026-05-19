@@ -1,10 +1,10 @@
 {
   "model_name": "clinical-readmission-prioritizer",
-  "version": "v1.0.5",
+  "version": "v1.0.9",
   "artifact_source": "saved-artifacts",
   "artifact_files": "best_model.joblib + preprocessor.joblib",
   "training_data": "data/raw/diabetic_data.csv",
-  "framework_version": "scikit-learn 1.6.1",
+  "framework_version": "scikit-learn 1.8.0",
   "deployment_entrypoint": "app.py",
-  "notes": "Tracked trained artifacts for reliable GitHub and Streamlit deployment"
+  "notes": "Retrained artifacts for scikit-learn 1.8.0 compatibility and reliable deployment"
 }
