@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use this project, please cite it using the metadata below."
+title: "AI Care Prioritization Engine"
+authors:
+  - family-names: "Mossie"
+    given-names: "Abebaw"
+    email: "abebawdebas7@gmail.com"
+repository-code: "https://github.com/admossie/clinical-prioritization-ai"
+url: "https://github.com/admossie/clinical-prioritization-ai"
+license: "MIT"
+version: "v1.0.9"
+date-released: "2026-05-04"
+abstract: "Translational biomedical informatics framework for calibrated hospital readmission prioritization integrating explainable AI, fairness-aware evaluation, workflow simulation, and operational clinical decision support."
+keywords:
+  - biomedical informatics
+  - readmission risk
+  - clinical decision support
+  - explainable ai
+  - fairness
+  - calibration
+preferred-citation:
+  type: article
+  title: "Capacity-Aware and Interpretable Machine Learning for Hospital Readmission Prioritization and Operational Clinical Decision Support"
+  author:
+    - family-names: "Mossie"
+      given-names: "Abebaw"
+  year: 2026
+  url: "https://github.com/admossie/clinical-prioritization-ai/releases/tag/v1.0.9"
