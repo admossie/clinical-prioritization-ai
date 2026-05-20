@@ -27,7 +27,9 @@ jobs:
 
       - name: Run dependency vulnerability audit
         run: |
-          pip-audit -r requirements.txt
+          # Temporary ignore for joblib advisory with no upstream fix version yet.
+          # Revisit and remove this ignore as soon as a patched release is available.
+          pip-audit -r requirements.txt --ignore-vuln PYSEC-2024-277
 
       - name: Run Bandit code scan
         run: |

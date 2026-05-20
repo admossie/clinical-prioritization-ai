@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Added clearer public-story documentation in `README.md` and a deployment checklist in `DEPLOYMENT.md`.
 - Added a concise pilot validation plan so the next phase can focus on workflow proof instead of more model changes.
+- Added a formal reproducibility appendix section to `paper/manuscript_draft.md` for journal submission readiness.
+- Added `paper/model_card.md` with intended use, performance, fairness outputs, limitations, and governance notes.
 
 ## [1.0.9] - 2026-05-04
 ### Fixed

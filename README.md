@@ -97,6 +97,8 @@ Use `app.py` for the standard GitHub quickstart. It launches `app/streamlit_app.
 - `CHANGELOG.md` - release-facing summary of notable changes
 - `SECURITY.md` - responsible disclosure guidance
 - `SUPPORT.md` - where to ask for help and how to navigate the repo
+- `paper/manuscript_draft.md` - publication-oriented manuscript draft
+- `paper/model_card.md` - model card for intended use, limits, and governance
 
 ## Public deployment readiness
 

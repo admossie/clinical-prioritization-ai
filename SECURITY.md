@@ -27,3 +27,10 @@ A best-effort response will be provided as quickly as possible.
 
 - Do not upload real patient-identifiable data into the public demo app or public forks of this repository.
 - Use de-identified, synthetic, or approved public datasets only.
+
+## Dependency audit exception
+
+The CI security workflow currently ignores advisory `PYSEC-2024-277` for `joblib` because no fixed upstream version is yet available in the advisory feed used by `pip-audit`.
+
+- This is a temporary exception.
+- The ignore rule should be removed immediately once a fixed release is published.
