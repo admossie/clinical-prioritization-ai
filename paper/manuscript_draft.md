@@ -55,6 +55,50 @@ On the internal held-out test set, the best LightGBM model achieved a ROC-AUC of
 
 All code, data, and Jupyter notebooks are provided for full reproducibility. The Streamlit app enables interactive exploration and demonstration. Detailed instructions are available in the README.
 
+## Appendix A. Reproducibility Statement
+
+### Code and Versioning
+The full source code is publicly available at:
+
+- https://github.com/admossie/clinical-prioritization-ai
+
+The release used for this manuscript is:
+
+- v1.0.9
+- https://github.com/admossie/clinical-prioritization-ai/releases/tag/v1.0.9
+
+### Runtime Environment
+- Python: 3.10+ (tested on 3.11 and 3.14)
+- Main dependencies: scikit-learn 1.8.0 compatible pipeline, LightGBM, Streamlit
+
+### Reproduction Commands
+The core workflow can be reproduced with:
+
+1. `pip install -r requirements.txt`
+2. `python -m src.train --data-path data/raw/diabetic_data.csv`
+3. `python -m src.evaluate --data-path data/raw/diabetic_data.csv`
+4. `python -m src.external_validate --data-path data/raw/diabetic_data.csv`
+5. `python -m src.workflow_simulation --scored-data outputs/tables/test_scored.csv`
+
+### Primary Reproducibility Artifacts
+- Evaluation metrics: `outputs/tables/evaluation_metrics.csv`
+- External validation metrics: `outputs/tables/external_validation_metrics.csv`
+- Calibration and threshold analysis: `outputs/tables/calibration_table.csv`, `outputs/tables/threshold_sweep.csv`
+- Fairness outputs: `outputs/tables/fairness_age.csv`, `outputs/tables/fairness_gender.csv`, `outputs/tables/fairness_race.csv`
+- Figures: ROC, PR, calibration, SHAP summary under `outputs/figures/`
+
+### Deployment Reproducibility
+The public demo is available at:
+
+- https://admossie-clinical-prioritization-ai-app-hzx0qb.streamlit.app/
+
+Deployment setup details are provided in `DEPLOYMENT.md`.
+
+### Model Card
+A dedicated model card for intended use, limitations, fairness, and governance notes is provided in:
+
+- `paper/model_card.md`
+
 
 ## Discussion
 
