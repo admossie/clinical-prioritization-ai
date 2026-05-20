@@ -1,12 +1,15 @@
 # AI Care Prioritization Engine
 
-> Capacity-aware clinical decision support for hospital readmission prioritization, workflow simulation, and demo-ready triage operations.
+> Translational biomedical informatics framework for calibrated hospital readmission prioritization integrating explainable AI, fairness-aware evaluation, workflow simulation, and operational clinical decision support.
 
 [![Release](https://img.shields.io/github/v/release/admossie/clinical-prioritization-ai)](https://github.com/admossie/clinical-prioritization-ai/releases/latest)
 [![CI](https://img.shields.io/github/actions/workflow/status/admossie/clinical-prioritization-ai/ci.yml?label=CI)](https://github.com/admossie/clinical-prioritization-ai/actions/workflows/ci.yml)
 [![Lint](https://img.shields.io/github/actions/workflow/status/admossie/clinical-prioritization-ai/lint.yml?label=Lint)](https://github.com/admossie/clinical-prioritization-ai/actions/workflows/lint.yml)
+[![Docker](https://img.shields.io/badge/Docker-supported-2496ED?logo=docker&logoColor=white)](Dockerfile)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](pyproject.toml)
+[![Reproducibility](https://img.shields.io/badge/Reproducibility-Versioned%20Pipeline%20%2B%20Artifacts-success)](paper/manuscript_draft.md)
+[![Citation](https://img.shields.io/badge/Citation-CITATION.cff-orange)](CITATION.cff)
 
 This repository packages a professional, portfolio-ready machine learning workflow for **readmission risk prediction**, **capacity-aware prioritization**, and **operational triage simulation** through both a `Streamlit` interface and a lightweight `FastAPI` layer.
 
@@ -15,6 +18,58 @@ This repository packages a professional, portfolio-ready machine learning workfl
 Streamlit Community Cloud:
 
 - https://admossie-clinical-prioritization-ai-app-hzx0qb.streamlit.app/
+
+## Research Overview
+
+This project presents a deployment-oriented clinical prioritization framework for hospital readmission risk management.
+
+The system integrates:
+
+- calibrated machine learning
+- explainable AI
+- workflow-aware prioritization
+- fairness analysis
+- operational simulation
+- reproducible deployment
+
+The objective is to support proactive intervention allocation and capacity-aware care management under constrained healthcare resources.
+
+## Clinical Relevance
+
+The framework is designed to support:
+
+- proactive readmission prevention
+- intervention queue prioritization
+- care management optimization
+- resource-constrained outreach workflows
+- interpretable risk communication
+
+The system is intended as clinical decision support and not as an autonomous diagnostic tool.
+
+## Evaluation Summary
+
+| Metric | Value |
+| --- | --- |
+| ROC-AUC | 0.689 |
+| PR-AUC | 0.244 |
+| Brier score | 0.091 |
+| Top-20% capture | 41.2% |
+| Top-10% capture | 26.1% |
+
+## Calibration and Fairness
+
+The framework includes:
+
+- probability calibration
+- subgroup performance analysis
+- fairness-aware evaluation
+- operational threshold analysis
+
+Calibration quality is evaluated using:
+
+- reliability analysis
+- Brier score
+- calibration curves
 
 ## At a glance
 
@@ -282,6 +337,14 @@ This framing makes the prioritization step explicit rather than treating predict
 - The manuscript template lives in `paper/manuscript_draft.md`
 - The explainability figure can be regenerated deterministically from `outputs/generate_explainability_figure.py`
 - The GitHub social preview asset can be regenerated from `outputs/generate_social_preview.py`
+
+## Limitations
+
+- Retrospective evaluation design
+- Potential institutional and coding-practice bias
+- Preliminary external validation scope
+- Moderate discrimination performance
+- Prototype deployment environment (not autonomous clinical diagnosis)
 
 ## Next steps
 
